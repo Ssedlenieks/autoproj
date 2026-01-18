@@ -1,0 +1,21 @@
+id,name,brand,category,is_estimate,notes
+1,Stage 1 ECU tune,Cobb Tuning,ECU,1,98 RON map - safe for stock engine
+2,Stage 2 ECU tune,Cobb Tuning,ECU,1,Premium fuel recommended
+3,Catback exhaust 63mm,Milltek,Exhaust,1,Stainless steel - less backpressure
+4,Full turbo back exhaust,Milltek,Exhaust,1,Includes downpipe - more aggressive
+5,Cold air intake kit,K&N,Intake,1,Reusable filter element
+6,Ram air intake,BMS,Intake,1,Aggressive cold air - with FMIC option
+7,Intercooler upgrade,Wagner,Cooling,1,Larger surface area - better cooling
+8,Oil cooler kit,Setrab,Cooling,1,Lowers oil temps under load
+9,Suspension lowering springs,H&R,Suspension,0,Cosmetic only - not power gain
+10,Coilover kit,KW V3,Suspension,0,Adjustable height and damping
+11,Front sway bar,Eibach,Suspension,0,Anti-roll bar upgrade
+12,LSD differential,Quaife,Drivetrain,1,Open to limited slip - handling improvement
+13,Performance brake pads,Brembo,Brakes,0,Better stopping power
+14,Big brake kit 330mm,StopTech,Brakes,0,Larger rotors and calipers
+15,Lightweight wheels 18in,OZ Racing,Wheels,0,Reduce unsprung weight
+16,Performance fuel system upgrade,Siemens,Fuel,1,Higher flow injectors
+17,Turbo upgrade kit M3 style,Garrett,Turbo,0,Full turbo setup - extreme
+18,Supercharger kit,Kompressor,Supercharger,0,Bolts on - needs supporting mods
+19,Engine internals - forged pistons,Mahle,Internals,1,High compression build prep
+20,Engine internals - forged rods,Pauter,Internals,1,Strength upgrade for high boost
