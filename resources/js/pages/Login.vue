@@ -93,7 +93,16 @@
 </template>
 
 <script>
+import { useAuth } from '../composables/useAuth'
+
 export default {
+  setup() {
+    const { setUser } = useAuth()
+
+    return {
+      setUser
+    }
+  },
   data() {
     return {
       currentSlide: 0,
@@ -107,6 +116,7 @@ export default {
         remember: false,
       },
       cars: [
+        // ... your existing cars array
         {
           name: 'Audi R8 V10 Plus',
           image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1600&h=1000&fit=crop&q=95',
@@ -157,39 +167,45 @@ export default {
       this.stopAutoSlide();
       this.startAutoSlide();
     },
-async login() {
-  this.loading = true
-  this.errors = {}
-  this.successMessage = ''
+    async login() {
+      this.loading = true
+      this.errors = {}
+      this.successMessage = ''
 
-  try {
-    const response = await fetch('/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-      },
-      credentials: 'include', // ← ADD THIS
-      body: JSON.stringify(this.form),
-    })
+      try {
+        const response = await fetch('/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          },
+          credentials: 'include',
+          body: JSON.stringify(this.form),
+        })
 
-    const data = await response.json()
+        const data = await response.json()
 
-    if (!response.ok) {
-      this.errors = data.errors || { general: ['Login failed'] }
-      return
-    }
+        if (!response.ok) {
+          this.errors = data.errors || { general: data.errors?.general?.[0] || 'Login failed' }
+          return
+        }
 
-    this.successMessage = 'Login successful! Redirecting...'
-    setTimeout(() => {
-      window.location.href = '/'
-    }, 1500)
-  } catch (err) {
-    this.errors = { general: [err.message] }
-  } finally {
-    this.loading = false
-  }
-},
+        if (data.success) {
+          // ✅ Update auth state
+          this.setUser(data.user)
+
+          this.successMessage = 'Login successful! Redirecting...'
+
+          setTimeout(() => {
+            this.$router.push('/dashboard')
+          }, 1000)
+        }
+      } catch (err) {
+        this.errors = { general: err.message }
+      } finally {
+        this.loading = false
+      }
+    },
     goToRegister() {
       this.$router.push('/register');
     },

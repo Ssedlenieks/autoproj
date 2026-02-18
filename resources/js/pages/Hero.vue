@@ -24,7 +24,7 @@
               <span class="user-name">{{ user.name }}</span>
               <span class="user-level">Lvl {{ user.level }} • {{ user.xp }} XP</span>
             </div>
-            <router-link to="/profile" class="profile-btn">Profile</router-link>
+            <router-link to="/dashboard" class="profile-btn">Dashboard</router-link>
             <button @click="logout" class="logout-btn">Logout</button>
           </div>
         </div>

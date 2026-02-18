@@ -39,9 +39,6 @@ class AuthController extends Controller
                 'username' => $validated['username'],
                 'password' => Hash::make($validated['password']),
                 'role_id' => $userRole->id,
-                'xp' => 0,
-                'level' => 1,
-                'badges' => [],
             ]);
 
             // Fire the Registered event
@@ -59,9 +56,9 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'username' => $user->username,
-                    'xp' => $user->xp,
-                    'level' => $user->level,
-                    'badges' => $user->badges,
+                    'level' => $user->level(),
+                    'total_points' => $user->totalPoints(),
+                    'rank' => $user->rank(),
                 ],
             ], 201);
 
@@ -114,9 +111,9 @@ class AuthController extends Controller
                     'name' => $user->name,
                     'email' => $user->email,
                     'username' => $user->username,
-                    'xp' => $user->xp,
-                    'level' => $user->level,
-                    'badges' => $user->badges,
+                    'level' => $user->level(),
+                    'total_points' => $user->totalPoints(),
+                    'rank' => $user->rank(),
                 ],
             ], 200);
 
@@ -157,9 +154,10 @@ class AuthController extends Controller
                 'avatar_url' => $user->avatar_url,
                 'country' => $user->country,
                 'favourite_car' => $user->favourite_car,
-                'xp' => $user->xp,
-                'level' => $user->level,
-                'badges' => $user->badges,
+                'level' => $user->level(),
+                'total_points' => $user->totalPoints(),
+                'rank' => $user->rank(),
+                'level_color' => $user->levelColor(),
             ],
             'success' => true,
         ], 200);
@@ -216,9 +214,9 @@ class AuthController extends Controller
                     'avatar_url' => $user->avatar_url,
                     'country' => $user->country,
                     'favourite_car' => $user->favourite_car,
-                    'xp' => $user->xp,
-                    'level' => $user->level,
-                    'badges' => $user->badges,
+                    'level' => $user->level(),
+                    'total_points' => $user->totalPoints(),
+                    'rank' => $user->rank(),
                 ],
                 'success' => true,
             ], 200);

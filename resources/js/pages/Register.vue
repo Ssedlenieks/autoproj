@@ -115,11 +115,18 @@
     </div>
   </div>
 </template>
-
 <script>
 import ThemeToggle from '../components/ThemeToggle.vue';
+import { useAuth } from '../composables/useAuth'
 
 export default {
+  setup() {
+    const { setUser } = useAuth()
+
+    return {
+      setUser
+    }
+  },
   data() {
     return {
       currentSlide: 0,
@@ -135,30 +142,26 @@ export default {
         password_confirmation: '',
       },
       cars: [
+        // ... your existing cars
         {
           name: 'Audi R8 V10 Plus',
-          image:
-            'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1600&h=1000&fit=crop&q=95',
+          image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1600&h=1000&fit=crop&q=95',
         },
         {
           name: 'Chevrolet Corvette C8',
-          image:
-            'https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?w=1600&h=1000&fit=crop&q=95',
+          image: 'https://images.unsplash.com/photo-1614200179396-2bdb77ebf81b?w=1600&h=1000&fit=crop&q=95',
         },
         {
           name: 'Porsche 911 Turbo S',
-          image:
-            'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&h=1000&fit=crop&q=95',
+          image: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1600&h=1000&fit=crop&q=95',
         },
         {
           name: 'Ferrari 296 GTB',
-          image:
-            'https://images.unsplash.com/photo-1617654112368-307921291f42?w=1600&h=1000&fit=crop&q=95',
+          image: 'https://images.unsplash.com/photo-1617654112368-307921291f42?w=1600&h=1000&fit=crop&q=95',
         },
         {
           name: 'Lamborghini Revuelto',
-          image:
-            'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=1600&h=1000&fit=crop&q=95',
+          image: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=1600&h=1000&fit=crop&q=95',
         },
       ],
     };
@@ -186,44 +189,56 @@ export default {
       this.startAutoSlide();
     },
     prevSlide() {
-      this.currentSlide =
-        (this.currentSlide - 1 + this.cars.length) % this.cars.length;
+      this.currentSlide = (this.currentSlide - 1 + this.cars.length) % this.cars.length;
       this.stopAutoSlide();
       this.startAutoSlide();
     },
     async register() {
-  this.loading = true
-  this.errors = {}
-  this.successMessage = ''
+      this.loading = true
+      this.errors = {}
+      this.successMessage = ''
 
-  try {
-    const response = await fetch('/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-      },
-      credentials: 'include', // ← ADD THIS
-      body: JSON.stringify(this.form),
-    })
+      try {
+        const response = await fetch('/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
+          },
+          credentials: 'include',
+          body: JSON.stringify(this.form),
+        })
 
-    const data = await response.json()
+        const data = await response.json()
 
-    if (!response.ok) {
-      this.errors = data.errors || { general: ['Registration failed'] }
-      return
-    }
+        if (!response.ok) {
+          if (data.errors) {
+            this.errors = {}
+            Object.keys(data.errors).forEach(key => {
+              this.errors[key] = data.errors[key][0]
+            })
+          } else {
+            this.errors = { general: 'Registration failed' }
+          }
+          return
+        }
 
-    this.successMessage = 'Account created successfully! Redirecting...'
-    setTimeout(() => {
-      window.location.href = '/'
-    }, 2000)
-  } catch (err) {
-    this.errors = { general: [err.message] }
-  } finally {
-    this.loading = false
-  }
-},
+        if (data.success) {
+          // ✅ Update auth state
+          this.setUser(data.user)
+
+          this.successMessage = '🎉 Account created successfully! Welcome to Potato Builder!'
+
+          setTimeout(() => {
+            this.$router.push('/dashboard')
+          }, 1500)
+        }
+      } catch (err) {
+        this.errors = { general: err.message }
+      } finally {
+        this.loading = false
+      }
+    },
     goToLogin() {
       this.$router.push('/login');
     },

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Car;
 use App\Models\VehicleModel;
 use App\Models\Engine;
+use App\Models\PowerMod;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
@@ -19,7 +20,16 @@ class CarController extends Controller {
         if ($request->has('model_id')) {
             return Car::where('model_id', $request->model_id)
                 ->with('engines')
-                ->get(['id', 'model_id', 'year', 'trim', 'body_style', 'drive_type', 'weight_kg']);
+                ->get(['id', 'model_id', 'year', 'trim', 'body_style', 'drive_type', 'weight_kg', 'image_url']);
+        }
+
+        // GET /api/powermods?car_id=1
+        if ($request->has('car_id')) {
+            return PowerMod::whereHas('cars', function ($query) use ($request) {
+                $query->where('cars.id', $request->car_id);
+            })->with(['cars' => function ($query) use ($request) {
+                $query->where('cars.id', $request->car_id);
+            }])->get();
         }
 
         return [];

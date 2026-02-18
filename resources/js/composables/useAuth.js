@@ -21,21 +21,35 @@ export function useAuth() {
       const data = await response.json()
       console.log('ME endpoint data:', data)
 
-      if (response.ok) {
+      if (response.ok && data.success) {
         user.value = data.user
         isAuthenticated.value = true
+        // ✅ Sync with localStorage
+        localStorage.setItem('user', JSON.stringify(data.user))
         console.log('User authenticated:', data.user.name)
       } else {
         user.value = null
         isAuthenticated.value = false
+        localStorage.removeItem('user')
         console.log('Not authenticated')
       }
     } catch (err) {
       console.error('Auth check failed:', err)
       user.value = null
       isAuthenticated.value = false
+      localStorage.removeItem('user')
     } finally {
       loading.value = false
+    }
+  }
+
+  const setUser = (userData) => {
+    user.value = userData
+    isAuthenticated.value = !!userData
+    if (userData) {
+      localStorage.setItem('user', JSON.stringify(userData))
+    } else {
+      localStorage.removeItem('user')
     }
   }
 
@@ -56,13 +70,18 @@ export function useAuth() {
 
       user.value = null
       isAuthenticated.value = false
+      localStorage.removeItem('user')
 
-      // Refresh the page to reset everything
+      // Refresh to home page
       setTimeout(() => {
         window.location.href = '/'
       }, 300)
     } catch (err) {
       console.error('Logout failed:', err)
+      user.value = null
+      isAuthenticated.value = false
+      localStorage.removeItem('user')
+      window.location.href = '/'
     }
   }
 
@@ -71,6 +90,7 @@ export function useAuth() {
     isAuthenticated,
     loading,
     checkAuth,
+    setUser,
     logout,
   }
 }
