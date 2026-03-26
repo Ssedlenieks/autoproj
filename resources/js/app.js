@@ -6,9 +6,9 @@ import ThemeToggle from './components/ThemeToggle.vue'
 import axios from 'axios'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
-
-// Initialize dark mode
 import { useDarkMode } from './composables/useDarkMode'
+
+// Dark mode
 const { colorScheme, toggleDarkMode } = useDarkMode()
 
 // Axios config
@@ -23,36 +23,42 @@ const router = createRouter({
     {
       path: '/',
       name: 'Home',
-      component: () => import('./pages/Hero.vue')
+      component: () => import('./pages/Hero.vue'),
     },
     {
       path: '/builder',
       name: 'Builder',
-      component: () => import('./pages/CarBuilder.vue')
+      component: () => import('./pages/CarBuilder.vue'),
     },
     {
       path: '/register',
       name: 'Register',
-      component: () => import('./pages/Register.vue')
+      component: () => import('./pages/Register.vue'),
     },
     {
       path: '/login',
       name: 'Login',
-      component: () => import('./pages/Login.vue')
+      component: () => import('./pages/Login.vue'),
     },
     {
       path: '/parts/:carId/:engineId',
       name: 'PartSelector',
       component: () => import('./pages/PartSelector.vue'),
-      props: true
+      props: true,
     },
     {
       path: '/dashboard',
       name: 'Dashboard',
       component: () => import('./pages/Dashboard.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
     },
-  ]
+    {
+      path: '/leaderboards',
+      name: 'Leaderboards',
+      component: () => import('./pages/Leaderboards.vue'),
+      meta: { requiresAuth: true },
+    },
+  ],
 })
 
 // Auth guard
@@ -93,5 +99,4 @@ app.use(Vue3Toastify, {
   autoClose: 4000,
   position: 'top-right',
 })
-
 app.mount('#app')

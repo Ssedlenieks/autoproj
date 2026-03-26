@@ -2,9 +2,6 @@
   <div>
     <!-- Hero Section Container -->
     <div class="hero-section">
-      <!-- Theme Toggle Component -->
-      <theme-toggle />
-
       <!-- Background Carousel with Keen Slider -->
       <div ref="container" class="keen-slider bg-carousel">
         <div v-for="(car, idx) in backgroundCars" :key="idx" class="keen-slider__slide car-slide">
@@ -14,21 +11,28 @@
 
       <!-- Minimal Header with Login -->
       <header class="hero-header">
-        <div class="header-left">
-          <h2>POTATO</h2>
-        </div>
-        <div class="header-right">
-          <router-link v-if="!isAuthenticated" to="/register" class="login-btn">Sign Up</router-link>
-          <div v-else class="user-header">
-            <div class="user-info">
-              <span class="user-name">{{ user.name }}</span>
-              <span class="user-level">Lvl {{ user.level }} • {{ user.xp }} XP</span>
-            </div>
-            <router-link to="/dashboard" class="profile-btn">Dashboard</router-link>
-            <button @click="logout" class="logout-btn">Logout</button>
-          </div>
-        </div>
-      </header>
+  <div class="header-left">
+    <h2 class="notranslate">POTATO</h2>
+  </div>
+
+  <!-- Language + Theme controls in header -->
+  <div class="header-controls">
+    <GoogleTranslate />
+    <ThemeToggle />
+  </div>
+
+  <div class="header-right">
+    <router-link v-if="!isAuthenticated" to="/register" class="login-btn">Sign Up</router-link>
+    <div v-else class="user-header">
+      <div class="user-info">
+        <span class="user-name notranslate">{{ user.name }}</span>
+        <span class="user-level notranslate">Lvl {{ user.level }} • {{ user.xp }} XP</span>
+      </div>
+      <router-link to="/dashboard" class="profile-btn">Dashboard</router-link>
+      <button @click="logout" class="logout-btn">Logout</button>
+    </div>
+  </div>
+</header>
 
       <!-- Overlay + Content -->
       <div class="hero-content">
@@ -118,13 +122,18 @@
   </div>
 </template>
 
-
 <script>
 import { useKeenSlider } from "keen-slider/vue.es"
 import "keen-slider/keen-slider.min.css"
 import { useAuth } from "../composables/useAuth"
+import ThemeToggle from "../components/ThemeToggle.vue"
+import GoogleTranslate from "../components/GoogleTranslate.vue"
 
 export default {
+  components: {
+    ThemeToggle,
+    GoogleTranslate,
+  },
   setup() {
     const [container] = useKeenSlider(
       {
@@ -224,6 +233,21 @@ html, body {
   background: #0a0a0a;
   color: #f5f5f5;
   box-shadow: 0 20px 40px rgba(255, 215, 0, 0.05);
+}
+
+/* Sits between POTATO and the login buttons, flows naturally */
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 auto 0 2rem; /* Pushes it away from POTATO logo */
+}
+
+@media (max-width: 768px) {
+  .header-controls {
+    gap: 8px;
+    margin-left: 1rem;
+  }
 }
 
 /* Background Carousel - Keen Slider */
@@ -475,21 +499,24 @@ html, body {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 2.5rem;
   margin-bottom: 3rem;
-  max-width: 550px;
+  width: 550px;
+  max-width: 100%;
   margin-left: auto;
   margin-right: auto;
 }
 
 .stat {
   background: rgba(255, 255, 255, 0.08);
-  padding: 2rem 1.5rem;
+  padding: 2rem 1rem;
   border-radius: 12px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.3s;
+  min-width: 0; /* prevent grid blowout */
+  overflow: hidden;
 }
 
 .stat:hover {
@@ -501,15 +528,21 @@ html, body {
   font-weight: 700;
   margin-bottom: 0.5rem;
   margin-top: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-label {
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   opacity: 0.8;
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin: 0;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
 }
 
 /* CTA Button */

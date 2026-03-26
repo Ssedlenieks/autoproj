@@ -2,7 +2,7 @@
 <template>
   <div class="login-container">
     <!-- Theme Toggle Component -->
-    <theme-toggle />
+
 
     <!-- Left Side: Carousel -->
     <div class="carousel-section">

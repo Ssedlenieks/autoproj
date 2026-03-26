@@ -1,7 +1,15 @@
 <template>
   <div v-if="!loading" class="app">
+
+    <!-- Global controls: fixed top-right on all pages except Hero -->
+    <div v-if="$route.path !== '/'" class="global-controls">
+      <GoogleTranslate />
+      <ThemeToggle />
+    </div>
+
     <router-view />
   </div>
+
   <div v-else class="loading-screen">
     <div class="spinner"></div>
     <p>Loading...</p>
@@ -11,26 +19,43 @@
 <script>
 import { useAuth } from './composables/useAuth'
 import { onMounted } from 'vue'
+import GoogleTranslate from './components/GoogleTranslate.vue'
+import ThemeToggle from './components/ThemeToggle.vue'
 
 export default {
   name: 'App',
+  components: {
+    GoogleTranslate,
+    ThemeToggle
+  },
   setup() {
     const { checkAuth, loading } = useAuth()
-
-    onMounted(async () => {
-      console.log('App mounted, checking auth...')
-      await checkAuth()
-      console.log('Auth check complete, loading:', loading.value)
-    })
-
-    return {
-      loading,
-    }
-  },
+    onMounted(async () => await checkAuth())
+    return { loading }
+  }
 }
 </script>
 
 <style scoped>
+.global-controls {
+  position: fixed;
+  top: 1.25rem;
+  right: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 2147483647;
+}
+
+@media (max-width: 768px) {
+  .global-controls {
+    top: 1rem;
+    right: 1rem;
+    gap: 8px;
+  }
+}
+
+/* Loading Screen */
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -40,7 +65,6 @@ export default {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
   color: #ffd700;
 }
-
 .spinner {
   width: 50px;
   height: 50px;
@@ -50,10 +74,5 @@ export default {
   animation: spin 1s linear infinite;
   margin-bottom: 20px;
 }
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>

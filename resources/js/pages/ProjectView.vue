@@ -1,6 +1,5 @@
 <template>
   <div class="project-view-container">
-    <ThemeToggle />
 
     <div class="container">
       <h1>Project View</h1>

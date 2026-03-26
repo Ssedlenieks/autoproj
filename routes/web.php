@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\PowerModController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\UserDashboardController;
 use App\Http\Controllers\Api\AvatarController;
+use App\Http\Controllers\Api\LeaderboardController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,9 @@ Route::prefix('api')->group(function () {
         // Dashboard & Profile
         Route::get('dashboard', [UserDashboardController::class, 'show']);
         Route::get('users/{id}/profile', [UserDashboardController::class, 'showProfile']);
+
+        // Leaderboards
+        Route::get('leaderboards', [LeaderboardController::class, 'index']);
 
         // Projects (Builds)
         Route::get('projects', [ProjectController::class, 'index']);

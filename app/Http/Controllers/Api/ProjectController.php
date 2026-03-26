@@ -38,7 +38,7 @@ class ProjectController extends Controller
             'parts.*.power_mod_id' => 'required|exists:power_mods,id',
             'parts.*.hp_gain' => 'required|integer',
             'parts.*.torque_nm_gain' => 'required|integer',
-            // ✅ Removed price validation
+            // Price validation removed
         ]);
 
         DB::beginTransaction();
@@ -46,7 +46,6 @@ class ProjectController extends Controller
             // Calculate totals
             $totalHPGain = collect($validated['parts'])->sum('hp_gain');
             $totalTorqueGain = collect($validated['parts'])->sum('torque_nm_gain');
-            // ✅ Removed $totalCost calculation
 
             // Create project
             $project = Project::create([
@@ -60,7 +59,8 @@ class ProjectController extends Controller
                 'total_hp_gain' => $totalHPGain,
                 'total_torque_gain' => $totalTorqueGain,
                 'final_hp' => $validated['base_hp'] + $totalHPGain,
-                'total_cost' => 0, // ✅ Set to 0 (keep column but don't use it)
+                'final_torque' => $validated['base_torque'] + $totalTorqueGain,
+                'total_cost' => 0,
             ]);
 
             // Add parts
@@ -70,11 +70,11 @@ class ProjectController extends Controller
                     'power_mod_id' => $part['power_mod_id'],
                     'hp_gain' => $part['hp_gain'],
                     'torque_nm_gain' => $part['torque_nm_gain'],
-                    'price' => 0, // ✅ Set to 0 (keep column but don't use it)
+                    'price' => 0,
                 ]);
             }
 
-            // ✅ Check for achievements and return newly unlocked ones
+            // Check for achievements and return newly unlocked ones
             $newAchievements = $this->checkAchievements($request->user(), $project);
 
             DB::commit();
@@ -157,10 +157,13 @@ class ProjectController extends Controller
                     if ($achievement->category === 'hp') {
                         $unlocked = $project->final_hp >= $achievement->requirement_value;
                     }
+
+                    elseif ($achievement->category === 'torque') {
+                        $unlocked = $project->final_torque >= $achievement->requirement_value;
+                    }
                     break;
 
                 case 'special':
-                    // ✅ Removed budget-build achievement check
                     if ($achievement->slug === 'bmw-specialist') {
                         $bmwCount = $user->projects()
                             ->whereHas('car.model.make', function($q) {

@@ -20,6 +20,7 @@ class Project extends Model
         'total_hp_gain',
         'total_torque_gain',
         'final_hp',
+        'final_torque',
         'total_cost',
         'is_public',
         'views',

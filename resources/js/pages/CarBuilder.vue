@@ -1,7 +1,5 @@
-<!-- UNIFIED Builder.vue - WITH MOD IT BUTTON -->
 <template>
   <div class="builder-container">
-    <ThemeToggle />
 
     <!-- Loading Overlay -->
     <div v-if="loading" class="loading-overlay">
@@ -332,6 +330,7 @@ export default {
       loadingModels: false,
       saving: false,
       sortBy: 'year_desc',
+      ThemeToggle,
 
       filters: {
         yearMin: 2000,

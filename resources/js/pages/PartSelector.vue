@@ -1,6 +1,5 @@
 <template>
   <div class="parts-selector-container">
-    <ThemeToggle />
 
     <!-- Loading -->
     <div v-if="loading" class="loading-overlay">
@@ -10,7 +9,7 @@
 
     <!-- Header -->
     <header class="parts-header">
-      <button @click="goBack" class="back-btn">← Back to Builder</button>
+      <button @click="goBack" class="back-btn">Back to Builder</button>
       <div class="header-info">
         <h1>{{ carInfo.make }} {{ carInfo.model }}</h1>
         <p>{{ carInfo.trim }} • {{ carInfo.year }} • {{ engineInfo.code }}</p>
@@ -22,7 +21,7 @@
       <!-- Left: Categories & Parts -->
       <div class="parts-list">
         <div v-if="Object.keys(categories).length === 0 && !loading" class="empty-state">
-          <div class="empty-icon">🔧</div>
+          <div class="empty-icon"></div>
           <h3>No parts available for this car/engine combo</h3>
           <p>Try selecting a different engine or check back later</p>
         </div>
@@ -44,11 +43,11 @@
 
               <div class="part-gains">
                 <div class="gain-item" v-if="part.hp_gain > 0">
-                  <span class="gain-icon">⚡</span>
+                  <span class="gain-icon">PWR</span>
                   <span class="gain-value">+{{ part.hp_gain }} HP</span>
                 </div>
                 <div class="gain-item" v-if="part.torque_nm_gain > 0">
-                  <span class="gain-icon">🔧</span>
+                  <span class="gain-icon">TRQ</span>
                   <span class="gain-value">+{{ part.torque_nm_gain }} Nm</span>
                 </div>
                 <div v-if="part.hp_gain === 0 && part.torque_nm_gain === 0" class="no-gain">
@@ -62,7 +61,7 @@
                 @click.stop="togglePart(part)"
                 :class="['add-btn', { added: isSelected(part.id) }]"
               >
-                {{ isSelected(part.id) ? '✓ Added' : '+ Add' }}
+                {{ isSelected(part.id) ? 'Added' : '+ Add' }}
               </button>
             </div>
           </div>
@@ -80,17 +79,24 @@
         </div>
 
         <div class="summary-stats">
+          <!-- HP Stats -->
           <div class="stat-box">
             <span class="stat-label">Stock HP</span>
             <span class="stat-value">{{ baseHP }} HP</span>
           </div>
           <div class="stat-box highlight">
-            <span class="stat-label">Total Gain</span>
-            <span class="stat-value">+{{ totalHPGain }} HP</span>
-          </div>
-          <div class="stat-box highlight">
             <span class="stat-label">Final HP</span>
-            <span class="stat-value">{{ baseHP + totalHPGain }} HP</span>
+            <span class="stat-value">{{ baseHP + totalHPGain }} <span style="font-size: 0.8rem; opacity: 0.8">(+{{ totalHPGain }})</span></span>
+          </div>
+
+          <!-- Torque Stats -->
+          <div class="stat-box" style="margin-top: 8px;">
+            <span class="stat-label">Stock Torque</span>
+            <span class="stat-value" style="color: #3b82f6;">{{ baseTorque }} Nm</span>
+          </div>
+          <div class="stat-box highlight" style="border-color: #3b82f6; background: rgba(59, 130, 246, 0.1);">
+            <span class="stat-label">Final Torque</span>
+            <span class="stat-value" style="color: #3b82f6;">{{ baseTorque + totalTorqueGain }} <span style="font-size: 0.8rem; opacity: 0.8">(+{{ totalTorqueGain }})</span></span>
           </div>
         </div>
 
@@ -102,14 +108,17 @@
           <div v-for="part in selectedParts" :key="part.id" class="selected-part-item">
             <div class="part-item-info">
               <strong>{{ part.name }}</strong>
-              <span class="part-item-gain">+{{ part.hp_gain }} HP</span>
+              <div style="display: flex; gap: 10px;">
+                <span v-if="part.hp_gain > 0" class="part-item-gain">+{{ part.hp_gain }} HP</span>
+                <span v-if="part.torque_nm_gain > 0" class="part-item-gain" style="color: #3b82f6;">+{{ part.torque_nm_gain }} Nm</span>
+              </div>
             </div>
-            <button @click="removePart(part.id)" class="remove-btn">×</button>
+            <button @click="removePart(part.id)" class="remove-btn">x</button>
           </div>
         </div>
 
         <div class="summary-actions">
-          <button class="btn-primary" @click="saveBuild" :disabled="selectedParts.length === 0">
+          <button class="btn-primary" @click="openSaveModal" :disabled="selectedParts.length === 0">
             Save Build
           </button>
           <button class="btn-secondary" @click="clearAll" :disabled="selectedParts.length === 0">
@@ -118,6 +127,31 @@
         </div>
       </aside>
     </div>
+
+    <!-- Save Build Modal -->
+    <div v-if="showSaveModal" class="modal-overlay" @click="closeSaveModal">
+      <div class="modal-content" @click.stop>
+        <h3>Name Your Build</h3>
+        <p>Give your project a custom name before saving to your garage.</p>
+
+        <input
+          type="text"
+          v-model="projectNameInput"
+          class="modal-input"
+          placeholder="e.g. My Track Beast"
+          @keyup.enter="confirmSaveBuild"
+          ref="projectNameRef"
+        />
+
+        <div class="modal-actions">
+          <button class="btn-cancel" @click="closeSaveModal" :disabled="isSaving">Cancel</button>
+          <button class="btn-primary modal-save-btn" @click="confirmSaveBuild" :disabled="!projectNameInput.trim() || isSaving">
+            {{ isSaving ? 'Saving...' : 'Save Build' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -151,6 +185,10 @@ export default {
       selectedParts: [],
       baseHP: 0,
       baseTorque: 0,
+
+      showSaveModal: false,
+      projectNameInput: '',
+      isSaving: false,
     }
   },
 
@@ -174,18 +212,11 @@ export default {
       try {
         const res = await axios.get(`/api/cars/${this.carId}/engines/${this.engineId}/parts`)
 
-        console.log('=== PARTS DEBUG ===')
-        console.log('carId, engineId:', this.carId, this.engineId)
-        console.log('Base HP from API:', res.data.baseHP)
-        console.log('Categories:', res.data.categories)
-        console.log('====================')
-
         if (res.data.success) {
           this.carInfo = res.data.car
           this.engineInfo = res.data.engine
           this.categories = res.data.categories
 
-          // ✅ Use real baseHP from car_engine pivot
           this.baseHP = res.data.baseHP || 0
           this.baseTorque = res.data.baseTorque || 0
         }
@@ -227,8 +258,7 @@ export default {
       }
     },
 
-    async saveBuild() {
-      // Check auth
+    openSaveModal() {
       const user = JSON.parse(localStorage.getItem('user') || 'null')
       if (!user) {
         if (confirm('You need to login to save builds. Go to login page?')) {
@@ -237,17 +267,28 @@ export default {
         return
       }
 
-      const projectName = prompt(
-        'Enter a name for your build:',
-        `${this.carInfo.make} ${this.carInfo.model} ${this.carInfo.year}`
-      )
+      this.projectNameInput = `${this.carInfo.make} ${this.carInfo.model} ${this.carInfo.year}`
+      this.showSaveModal = true
 
-      if (!projectName) return
+      this.$nextTick(() => {
+        if (this.$refs.projectNameRef) this.$refs.projectNameRef.focus()
+      })
+    },
+
+    closeSaveModal() {
+      this.showSaveModal = false
+    },
+
+    async confirmSaveBuild() {
+      if (!this.projectNameInput.trim()) return
+
+      this.isSaving = true
+      const user = JSON.parse(localStorage.getItem('user') || '{}')
 
       const buildData = {
         car_id: parseInt(this.carId),
         engine_id: parseInt(this.engineId),
-        project_name: projectName,
+        project_name: this.projectNameInput.trim(),
         description: '',
         base_hp: this.baseHP,
         base_torque: this.baseTorque,
@@ -258,15 +299,10 @@ export default {
         }))
       }
 
-      console.log('Saving build:', buildData)
-
       try {
         const res = await axios.post('/api/projects', buildData)
 
         if (res.data.success) {
-          console.log('Build saved!', res.data)
-
-          // ✅ Update localStorage with new points
           const updatedUser = {
             ...user,
             total_points: res.data.user?.total_points || user.total_points,
@@ -274,12 +310,12 @@ export default {
           }
           localStorage.setItem('user', JSON.stringify(updatedUser))
 
-          // Show success message
-          toast.success(`🎉 Build "${projectName}" saved successfully!`, {
+          this.showSaveModal = false
+
+          toast.success(`Build "${this.projectNameInput}" saved successfully!`, {
             autoClose: 3000,
           })
 
-          // Show achievement toasts with stagger
           if (res.data.newAchievements && res.data.newAchievements.length > 0) {
             res.data.newAchievements.forEach((achievement, index) => {
               setTimeout(() => {
@@ -289,11 +325,10 @@ export default {
                   hideProgressBar: true,
                   className: 'achievement-toast-container',
                 })
-              }, 1000 + (index * 700)) // Stagger animations
+              }, 1000 + (index * 700))
             })
           }
 
-          // Redirect to dashboard after achievements show
           setTimeout(() => {
             this.$router.push('/dashboard')
           }, res.data.newAchievements?.length > 0 ? 3000 : 2000)
@@ -302,7 +337,7 @@ export default {
         console.error('Save build error:', error)
 
         if (error.response?.status === 401) {
-          toast.error('⚠️ Session expired. Please login again.')
+          toast.error('Session expired. Please login again.')
           localStorage.removeItem('user')
           this.$router.push({ name: 'Login', query: { redirect: this.$route.fullPath } })
         } else if (error.response?.status === 422) {
@@ -312,6 +347,8 @@ export default {
         } else {
           toast.error(`Failed to save build:\n${error.response?.data?.message || error.message}`)
         }
+      } finally {
+        this.isSaving = false
       }
     },
 
@@ -413,7 +450,7 @@ html[data-color-scheme='dark'] .back-btn {
   color: #64748b;
   font-size: 0.95rem;
 }
-/* Achievement toast container styling */
+
 .achievement-toast-container {
   background: transparent !important;
   padding: 0 !important;
@@ -558,7 +595,8 @@ html[data-color-scheme='dark'] .gain-item {
 }
 
 .gain-icon {
-  font-size: 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 800;
 }
 
 .no-gain {
@@ -780,7 +818,8 @@ html[data-color-scheme='dark'] .part-item-gain {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -857,11 +896,6 @@ html[data-color-scheme='dark'] .btn-secondary {
   color: #94a3b8;
 }
 
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 20px;
-}
-
 .empty-state h3 {
   font-size: 1.4rem;
   color: #64748b;
@@ -870,5 +904,126 @@ html[data-color-scheme='dark'] .btn-secondary {
 
 .empty-state p {
   color: #94a3b8;
+}
+
+/* Custom Save Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 450px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease-out;
+}
+
+html[data-color-scheme='dark'] .modal-content {
+  background: #1a1a1a;
+  border: 1px solid #2d2d2d;
+}
+
+.modal-content h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+html[data-color-scheme='dark'] .modal-content h3 {
+  color: #f5f5f5;
+}
+
+.modal-content p {
+  color: #64748b;
+  margin: 0 0 20px 0;
+  font-size: 0.95rem;
+}
+
+html[data-color-scheme='dark'] .modal-content p {
+  color: #a0aec0;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 1.05rem;
+  margin-bottom: 24px;
+  outline: none;
+  transition: all 0.3s;
+  background: #f8fafc;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+html[data-color-scheme='dark'] .modal-input {
+  background: #2d2d2d;
+  border-color: #404040;
+  color: #f5f5f5;
+}
+
+.modal-input:focus {
+  border-color: #10b981;
+  background: white;
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+html[data-color-scheme='dark'] .modal-input:focus {
+  border-color: #ffd700;
+  background: #1a1a1a;
+  box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.15);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-cancel {
+  padding: 12px 20px;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+html[data-color-scheme='dark'] .btn-cancel {
+  background: #2d2d2d;
+  color: #a0aec0;
+}
+
+.btn-cancel:hover {
+  background: #e2e8f0;
+}
+
+html[data-color-scheme='dark'] .btn-cancel:hover {
+  background: #404040;
+}
+
+.modal-save-btn {
+  width: auto;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

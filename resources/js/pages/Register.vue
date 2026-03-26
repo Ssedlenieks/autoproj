@@ -1,6 +1,5 @@
 <template>
   <div class="register-container">
-    <theme-toggle />
     <!-- Left Side: Carousel -->
     <div class="carousel-section">
       <div class="carousel-wrapper">

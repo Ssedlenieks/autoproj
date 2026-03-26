@@ -1,7 +1,5 @@
 <template>
   <div class="dashboard-container">
-    <ThemeToggle />
-
     <!-- Loading -->
     <div v-if="loading" class="loading">
       <div class="loading-spinner"></div>
@@ -15,11 +13,17 @@
           <!-- Avatar with Upload -->
           <div class="avatar-wrapper">
             <div class="avatar-preview" @click="triggerFileInput">
-              <img v-if="user.avatar_url" :src="user.avatar_url" class="avatar avatar-img" />
-              <div v-else class="avatar">{{ user.name.charAt(0).toUpperCase() }}</div>
+              <img
+                v-if="user.avatar_url"
+                :src="user.avatar_url"
+                class="avatar avatar-img"
+              />
+              <div v-else class="avatar notranslate">
+                {{ user.name.charAt(0).toUpperCase() }}
+              </div>
 
               <div class="avatar-overlay">
-                <span class="camera-icon">📷</span>
+                <span class="camera-icon">UP</span>
               </div>
             </div>
 
@@ -32,19 +36,39 @@
             />
 
             <div v-if="uploading" class="upload-status">Uploading...</div>
-            <button v-if="user.avatar_url" @click="deleteAvatar" class="btn-remove-avatar">
+            <button
+              v-if="user.avatar_url"
+              @click="deleteAvatar"
+              class="btn-remove-avatar"
+            >
               Remove
             </button>
           </div>
 
           <div class="user-info">
-            <h1>{{ user.name }}</h1>
-            <p class="user-email">{{ user.email }}</p>
+            <!-- PROTECTED: User name -->
+            <h1 class="notranslate">{{ user.name }}</h1>
+            <p class="user-email notranslate">{{ user.email }}</p>
+
+            <!-- NEW: Leaderboard button under user info -->
+            <button
+              class="btn-primary"
+              style="margin-top: 12px;"
+              @click="$router.push('/leaderboards')"
+            >
+              View Global Leaderboard
+            </button>
           </div>
         </div>
 
         <div class="level-badge">
-          <div class="level-icon" :style="{ color: stats.level_color }">⭐</div>
+          <!-- PROTECTED: LVL badge -->
+          <div
+            class="level-icon notranslate"
+            :style="{ color: stats.level_color }"
+          >
+            LVL
+          </div>
           <div class="level-info">
             <span class="level-text">Level {{ stats.level }}</span>
             <span class="rank-text">{{ stats.rank }}</span>
@@ -70,38 +94,58 @@
       <!-- Stats Grid -->
       <div class="stats-grid">
         <div class="stat-card">
-          <div class="stat-icon">🚗</div>
+          <!-- PROTECTED: BLD acronym -->
+          <div class="stat-icon notranslate">BLD</div>
           <div class="stat-value">{{ stats.total_builds }}</div>
           <div class="stat-label">Total Builds</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon">🏆</div>
+          <!-- PROTECTED: ACH acronym -->
+          <div class="stat-icon notranslate">ACH</div>
           <div class="stat-value">{{ stats.achievements_unlocked }}</div>
           <div class="stat-label">Achievements</div>
         </div>
 
         <div class="stat-card">
-          <div class="stat-icon">⚡</div>
+          <!-- PROTECTED: PWR acronym -->
+          <div class="stat-icon notranslate">PWR</div>
           <div class="stat-value">+{{ stats.total_hp_gained }}</div>
           <div class="stat-label">Total HP Gained</div>
         </div>
 
-        <div class="stat-card" v-if="stats.most_powerful_build">
-          <div class="stat-icon">🔥</div>
-          <div class="stat-value">{{ stats.most_powerful_build.final_hp }}</div>
-          <div class="stat-label">Most Powerful</div>
+        <!-- NEW: Total Torque Gained -->
+        <div class="stat-card">
+          <!-- PROTECTED: TRQ acronym -->
+          <div class="stat-icon notranslate">TRQ</div>
+          <div class="stat-value">
+            +{{ stats.total_torque_gained || 0 }}
+          </div>
+          <div class="stat-label">Total Torque Gained</div>
+        </div>
+
+        <!-- Optional: Show Max Torque Build if you added it to backend -->
+        <div class="stat-card" v-if="stats.most_torquey_build">
+          <!-- PROTECTED: MAX acronym -->
+          <div class="stat-icon notranslate">MAX</div>
+          <div class="stat-value">
+            {{ stats.most_torquey_build.final_torque }}
+          </div>
+          <div class="stat-label">Highest Torque</div>
         </div>
       </div>
 
       <!-- Achievements Section -->
       <section class="achievements-section">
-        <h2>🏆 Achievements ({{ stats.achievements_unlocked }})</h2>
+        <h2>Achievements ({{ stats.achievements_unlocked }})</h2>
 
-        <div v-if="user.achievements && user.achievements.length === 0" class="empty-state">
-          <div class="empty-icon">🏆</div>
+        <div
+          v-if="user.achievements && user.achievements.length === 0"
+          class="empty-state"
+        >
+          <div class="empty-icon notranslate">!</div>
           <h3>No achievements yet</h3>
-          <p>Complete builds to unlock achievements!</p>
+          <p>Complete builds to unlock achievements.</p>
         </div>
 
         <div v-else class="achievements-grid">
@@ -110,11 +154,16 @@
             :key="achievement.id"
             class="achievement-card unlocked"
           >
-            <div class="achievement-icon">{{ achievement.icon }}</div>
+            <!-- PROTECTED: Icons/stars -->
+            <div class="achievement-icon notranslate">
+              {{ achievement.icon || '★' }}
+            </div>
             <div class="achievement-info">
               <h3>{{ achievement.name }}</h3>
               <p>{{ achievement.description }}</p>
-              <span class="achievement-points">+{{ achievement.points }} pts</span>
+              <span class="achievement-points">
+                +{{ achievement.points }} pts
+              </span>
             </div>
           </div>
         </div>
@@ -124,16 +173,23 @@
       <section class="builds-section">
         <div class="section-header">
           <h2>Your Builds ({{ user.projects.length }})</h2>
-          <button @click="$router.push('/builder')" class="btn-new-build">
+          <button
+            @click="$router.push('/builder')"
+            class="btn-new-build"
+          >
             + New Build
           </button>
         </div>
 
         <div v-if="user.projects.length === 0" class="empty-state">
-          <div class="empty-icon">🏗️</div>
+          <!-- PROTECTED: ADD acronym -->
+          <div class="empty-icon notranslate">ADD</div>
           <h3>No builds yet</h3>
-          <p>Start building your dream car!</p>
-          <button @click="$router.push('/builder')" class="btn-primary">
+          <p>Start building your dream car.</p>
+          <button
+            @click="$router.push('/builder')"
+            class="btn-primary"
+          >
             Create First Build
           </button>
         </div>
@@ -145,32 +201,84 @@
             class="build-card"
           >
             <div class="build-header">
-              <h3>{{ project.project_name }}</h3>
-              <button @click.stop="deleteBuild(project.id)" class="btn-delete">×</button>
+              <!-- PROTECTED: Project Name -->
+              <h3 class="notranslate">
+                {{ project.project_name }}
+              </h3>
+              <button
+                @click.stop="deleteBuild(project.id)"
+                class="btn-delete"
+              >
+                x
+              </button>
+            </div>
+
+            <!-- NEW: Car Image -->
+            <div
+              class="build-image-wrapper"
+              v-if="project.car.image_url || project.car.imageurl"
+            >
+              <img
+                :src="getImageUrl(project.car)"
+                :alt="project.car.model.name"
+                class="build-car-image"
+                @error="handleImageError"
+              />
             </div>
 
             <div class="build-car-info">
-              <strong>{{ project.car.model.make.name }} {{ project.car.model.name }}</strong>
-              <p>{{ project.car.trim }} ({{ project.car.year }})</p>
-              <p>Engine: {{ project.engine.code }}</p>
+              <!-- PROTECTED: Car make and model -->
+              <strong class="notranslate">
+                {{ project.car.model.make.name }}
+                {{ project.car.model.name }}
+              </strong>
+              <p class="notranslate">
+                {{ project.car.trim }} ({{ project.car.year }})
+              </p>
+              <p>
+                Engine:
+                <span class="notranslate">
+                  {{ project.engine.code }}
+                </span>
+              </p>
             </div>
 
             <div class="build-stats">
               <div class="stat">
-                <span class="stat-label">HP:</span>
+                <span class="stat-label">Power (HP):</span>
                 <span class="stat-value">
                   {{ project.base_hp }} → {{ project.final_hp }}
-                  <span class="gain">(+{{ project.total_hp_gain }})</span>
+                  <span class="gain">
+                    (+{{ project.total_hp_gain }})
+                  </span>
                 </span>
               </div>
+
+              <!-- NEW: Torque in Build List -->
               <div class="stat">
-                <span class="stat-label">Parts:</span>
-                <span class="stat-value">{{ project.parts.length }}</span>
+                <span class="stat-label">Torque (Nm):</span>
+                <span class="stat-value">
+                  {{ project.base_torque || '-' }}
+                  →
+                  {{ project.final_torque || '-' }}
+                  <span class="gain torque-gain">
+                    (+{{ project.total_torque_gain || 0 }})
+                  </span>
+                </span>
+              </div>
+
+              <div class="stat">
+                <span class="stat-label">Parts Installed:</span>
+                <span class="stat-value">
+                  {{ project.parts ? project.parts.length : 0 }}
+                </span>
               </div>
             </div>
 
             <div class="build-footer">
-              <span class="build-date">{{ formatDate(project.created_at) }}</span>
+              <span class="build-date">
+                {{ formatDate(project.created_at) }}
+              </span>
             </div>
           </div>
         </div>
@@ -179,7 +287,9 @@
 
     <div v-else class="error-state">
       <h2>Failed to load dashboard</h2>
-      <button @click="loadDashboard" class="btn-retry">Retry</button>
+      <button @click="loadDashboard" class="btn-retry">
+        Retry
+      </button>
     </div>
 
     <!-- Avatar Cropper Modal -->
@@ -194,12 +304,11 @@
 
 <script>
 import axios from 'axios'
-import ThemeToggle from '../components/ThemeToggle.vue'
 import AvatarCropper from '../components/AvatarCropper.vue'
 import { toast } from 'vue3-toastify'
 
 export default {
-  components: { ThemeToggle, AvatarCropper },
+  components: { AvatarCropper },
 
   data() {
     return {
@@ -212,6 +321,7 @@ export default {
         total_builds: 0,
         achievements_unlocked: 0,
         total_hp_gained: 0,
+        total_torque_gained: 0,
         level: 1,
         rank: 'Beginner',
         total_points: 0,
@@ -220,6 +330,7 @@ export default {
         points_for_next_level: 100,
         level_color: '#10b981',
         most_powerful_build: null,
+        most_torquey_build: null,
       },
     }
   },
@@ -237,7 +348,8 @@ export default {
 
         if (res.data.success) {
           this.user = res.data.user
-          this.stats = res.data.stats
+          // Merge in case backend hasn't added torque stats yet
+          this.stats = { ...this.stats, ...res.data.stats }
         }
       } catch (error) {
         console.error('Dashboard load error:', error)
@@ -253,6 +365,18 @@ export default {
       }
     },
 
+    getImageUrl(car) {
+      // Fallback for different column naming conventions (imageurl vs image_url)
+      const url = car.image_url || car.imageurl
+      if (!url) return 'https://via.placeholder.com/300x200?text=No+Image'
+      return url
+    },
+
+    handleImageError(event) {
+      event.target.src =
+        'https://via.placeholder.com/300x200?text=Image+Not+Found'
+    },
+
     triggerFileInput() {
       this.$refs.fileInput.click()
     },
@@ -261,27 +385,22 @@ export default {
       const file = event.target.files[0]
       if (!file) return
 
-      // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error('Image size must be less than 5MB')
         return
       }
 
-      // Validate file type
       if (!file.type.startsWith('image/')) {
         toast.error('Please select an image file')
         return
       }
 
-      // Read file and show cropper
       const reader = new FileReader()
-      reader.onload = (e) => {
+      reader.onload = e => {
         this.selectedImage = e.target.result
         this.showCropper = true
       }
       reader.readAsDataURL(file)
-
-      // Reset input
       this.$refs.fileInput.value = ''
     },
 
@@ -297,20 +416,18 @@ export default {
       try {
         const res = await axios.post('/api/avatar/upload', formData, {
           headers: {
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'multipart/form-data',
+          },
         })
 
         if (res.data.success) {
-          // Add timestamp to force image reload
           this.user.avatar_url = res.data.avatar_url + '?t=' + Date.now()
 
-          // Update localStorage
           const user = JSON.parse(localStorage.getItem('user') || '{}')
           user.avatar = res.data.avatar_url
           localStorage.setItem('user', JSON.stringify(user))
 
-          toast.success('✅ Avatar updated successfully!')
+          toast.success('Avatar updated successfully')
         }
       } catch (error) {
         console.error('Avatar upload error:', error)
@@ -330,7 +447,6 @@ export default {
         if (res.data.success) {
           this.user.avatar_url = null
 
-          // Update localStorage
           const user = JSON.parse(localStorage.getItem('user') || '{}')
           user.avatar = null
           localStorage.setItem('user', JSON.stringify(user))
@@ -348,7 +464,7 @@ export default {
 
       try {
         await axios.delete(`/api/projects/${id}`)
-        toast.success('Build deleted successfully!')
+        toast.success('Build deleted')
         await this.loadDashboard()
       } catch (error) {
         console.error('Delete error:', error)
@@ -360,14 +476,18 @@ export default {
       return new Date(date).toLocaleDateString('en-US', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
       })
-    }
-  }
+    },
+  },
 }
 </script>
 
 <style scoped>
+/* =============================================
+   Paste your ENTIRE existing <style scoped>
+   block here — nothing changed in the CSS.
+   ============================================= */
 .dashboard-container {
   min-height: 100vh;
   background: #f8fafc;
@@ -399,7 +519,9 @@ html[data-color-scheme='dark'] .dashboard-container {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Error State */
@@ -437,7 +559,7 @@ html[data-color-scheme='dark'] .btn-retry {
   padding: 30px;
   border-radius: 16px;
   margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 html[data-color-scheme='dark'] .dashboard-header {
@@ -513,7 +635,9 @@ html[data-color-scheme='dark'] .avatar {
 }
 
 .camera-icon {
-  font-size: 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: white;
 }
 
 .upload-status {
@@ -577,8 +701,9 @@ html[data-color-scheme='dark'] .level-badge {
 }
 
 .level-icon {
-  font-size: 2.5rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  font-size: 1.8rem;
+  font-weight: bold;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
 
 .level-info {
@@ -642,7 +767,7 @@ html[data-color-scheme='dark'] .xp-bar {
 /* Stats Grid */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 20px;
   margin-bottom: 40px;
 }
@@ -652,7 +777,7 @@ html[data-color-scheme='dark'] .xp-bar {
   padding: 30px;
   border-radius: 12px;
   text-align: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 html[data-color-scheme='dark'] .stat-card {
@@ -660,7 +785,9 @@ html[data-color-scheme='dark'] .stat-card {
 }
 
 .stat-icon {
-  font-size: 3rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #94a3b8;
   margin-bottom: 10px;
 }
 
@@ -724,7 +851,13 @@ html[data-color-scheme='dark'] .achievement-card {
 }
 
 .achievement-icon {
-  font-size: 3rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #10b981;
+}
+
+html[data-color-scheme='dark'] .achievement-icon {
+  color: #ffd700;
 }
 
 .achievement-info h3 {
@@ -766,6 +899,8 @@ html[data-color-scheme='dark'] .achievement-points {
   border-radius: 12px;
   padding: 24px;
   transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
 }
 
 html[data-color-scheme='dark'] .build-card {
@@ -803,7 +938,8 @@ html[data-color-scheme='dark'] .build-header h3 {
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
 }
@@ -811,6 +947,31 @@ html[data-color-scheme='dark'] .build-header h3 {
 .btn-delete:hover {
   background: #dc2626;
   color: white;
+}
+
+/* New: Build Image */
+.build-image-wrapper {
+  width: 100%;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: #f8fafc;
+}
+
+html[data-color-scheme='dark'] .build-image-wrapper {
+  background: #2d2d2d;
+}
+
+.build-car-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.build-card:hover .build-car-image {
+  transform: scale(1.05);
 }
 
 .build-car-info {
@@ -843,6 +1004,7 @@ html[data-color-scheme='dark'] .build-car-info strong {
   flex-direction: column;
   gap: 8px;
   margin-bottom: 16px;
+  flex-grow: 1;
 }
 
 .build-stats .stat {
@@ -871,6 +1033,10 @@ html[data-color-scheme='dark'] .build-stats .stat-value {
 
 html[data-color-scheme='dark'] .build-stats .gain {
   color: #ffd700;
+}
+
+.build-stats .torque-gain {
+  color: #3b82f6;
 }
 
 .build-footer {
@@ -925,7 +1091,9 @@ html[data-color-scheme='dark'] .empty-state {
 }
 
 .empty-icon {
-  font-size: 4rem;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #94a3b8;
   margin-bottom: 20px;
 }
 
