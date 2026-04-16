@@ -2,19 +2,19 @@
   <div class="builder-container">
 
     <!-- Loading Overlay -->
-    <div v-if="loading" class="loading-overlay">
+    <div v-if="Lādējās" class="loading-overlay">
       <div class="loading-spinner"></div>
-      <p>Loading...</p>
+      <p>Lādējās...</p>
     </div>
 
     <!-- Header -->
     <header class="builder-header">
       <div class="header-left">
-        <h1>Potato Car Builder</h1>
+        <h1>Auto projektēšana</h1>
       </div>
       <div class="header-right">
         <span class="user-info">
-          {{ user.builds }} Builds
+          {{ user.builds }} Projekti
         </span>
       </div>
     </header>
@@ -55,11 +55,11 @@
               class="filter-select"
               :disabled="loadingModels"
             >
-              <option value="">Select Model</option>
-              <option v-for="model in models" :key="model.id" :value="model.id">
+              <option value="">Izvēlities modeli</option>
+              <option v-for="model in modeļi" :key="model.id" :value="model.id">
                 {{ model.name }}
               </option>
-              <option v-if="loadingModels" value="" disabled>Loading...</option>
+              <option v-if="loadingModels" value="" disabled>Lādējās...</option>
             </select>
           </div>
 
@@ -67,7 +67,7 @@
 
           <!-- Year Range -->
           <div class="filter-section">
-            <h3>Year</h3>
+            <h3>Gads</h3>
             <div class="year-range-display">{{ filters.yearMin }} - {{ filters.yearMax }}</div>
             <div class="year-slider-container">
               <input
@@ -83,7 +83,7 @@
 
           <!-- Power Range -->
           <div class="filter-section">
-            <h3>Power (HP)</h3>
+            <h3>Jauda (HP)</h3>
             <div class="power-slider-container">
               <input
                 v-model.number="filters.minPower"
@@ -100,21 +100,21 @@
 
           <!-- Sort Options -->
           <div class="filter-section">
-            <h3>Sort By</h3>
+            <h3>Sortēt pēc</h3>
             <select v-model="sortBy" @change="applySorting" class="filter-select">
-              <option value="year_desc">Year: Newest First</option>
-              <option value="year_asc">Year: Oldest First</option>
-              <option value="power_desc">Power: High to Low</option>
-              <option value="power_asc">Power: Low to High</option>
-              <option value="name_asc">Name: A-Z</option>
-              <option value="name_desc">Name: Z-A</option>
+              <option value="year_desc">Gads: Jaunākais</option>
+              <option value="year_asc">Gads: Vecākais</option>
+              <option value="power_desc">Jauda: Augstākā uz leju</option>
+              <option value="power_asc">Jauda: Zemākā uz augšu</option>
+              <option value="name_asc">Vārds: A-Z</option>
+              <option value="name_desc">Vārds: Z-A</option>
             </select>
           </div>
 
           <!-- Reset Button -->
           <div class="filter-section">
             <button @click="resetFilters" class="reset-button" :disabled="!hasActiveFilters">
-              Reset Filters
+              Attiesāt filtrus
             </button>
           </div>
         </div>
@@ -130,16 +130,16 @@
           </button>
           <div class="mobile-results-info">
             <span v-if="selectedModel">{{ filteredCars.length }} variants</span>
-            <span v-else>Select a make & model</span>
+            <span v-else>Izvēlaties modeli un marku</span>
           </div>
         </div>
 
         <!-- Top Bar -->
         <div v-if="selectedModel && !isMobile" class="top-bar">
           <div>
-            <h2>Available Variants</h2>
+            <h2>Varianti</h2>
             <p class="results-count">
-              {{ filteredCars.length }} variants found
+              {{ filteredCars.length }} varianti atrasti
             </p>
           </div>
         </div>
@@ -191,14 +191,14 @@
         <!-- Empty States -->
         <div v-else-if="selectedModel && !filteredCars.length" class="empty-state">
           <div class="empty-state-icon">🔍</div>
-          <h3>No variants match your filters</h3>
-          <p>Try adjusting year range or power requirements</p>
-          <button @click="resetFilters" class="reset-button">Reset All Filters</button>
+          <h3>Nav variantu, kas atbilst jūsu filtrēm</h3>
+          <p>Mēģiniet pielāgot gada rīkli vai jaudas prasības</p>
+          <button @click="resetFilters" class="reset-button">Atiestatīt visus filtrus</button>
         </div>
         <div v-else-if="!selectedModel" class="empty-state">
           <div class="empty-state-icon">🚗</div>
-          <h3>Select a make and model to browse</h3>
-          <p>Choose from our extensive collection of car models</p>
+          <h3>Izvēlaties modeli un marku</h3>
+          <p>Izvēlaties no mūsu plašā modeļu klāsta</p>
         </div>
       </main>
 
@@ -223,7 +223,7 @@
 
             <!-- Variant Selector -->
             <div class="variant-selector-section">
-              <h3>Select Variant</h3>
+              <h3>Izvēlēties variantu</h3>
               <div class="variant-scroll">
                 <button
                   v-for="(variant, idx) in carDetails.variants"
@@ -289,7 +289,7 @@
             <!-- Action Buttons -->
             <div class="details-actions">
               <button class="btn-primary" @click="saveToGarage" :disabled="saving">
-                {{ saving ? 'Saving...' : 'Save Build' }}
+                {{ saving ? 'Saglabā...' : 'Saglabāt' }}
               </button>
               <!-- UPDATED: Changed to goToModIt -->
               <button class="btn-secondary" @click="goToModIt" :disabled="!selectedEngine">

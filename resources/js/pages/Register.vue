@@ -30,13 +30,13 @@
     <!-- Right Side: Registration Form -->
     <div class="form-section">
       <div class="form-header">
-        <h1>Create Account</h1>
-        <p>Register to start building your dream cars</p>
+        <h1>Izveidot kontu</h1>
+        <p>Reģistrējies, lai sāktu projektēt savu sapņu mašīnu</p>
       </div>
 
       <form @submit.prevent="register" class="register-form">
         <div class="form-group">
-          <label for="name">Full Name</label>
+          <label for="name">Jūsu vārds</label>
           <input
             v-model="form.name"
             type="text"
@@ -48,7 +48,7 @@
         </div>
 
         <div class="form-group">
-          <label for="email">Email</label>
+          <label for="email">E-pasts</label>
           <input
             v-model="form.email"
             type="email"
@@ -60,7 +60,7 @@
         </div>
 
         <div class="form-group">
-          <label for="username">Username</label>
+          <label for="username">Lietotājvārds</label>
           <input
             v-model="form.username"
             type="text"
@@ -72,7 +72,7 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">Parole</label>
           <input
             v-model="form.password"
             type="password"
@@ -84,7 +84,7 @@
         </div>
 
         <div class="form-group">
-          <label for="password_confirmation">Confirm Password</label>
+          <label for="password_confirmation">Apstiprināt Paroli</label>
           <input
             v-model="form.password_confirmation"
             type="password"
@@ -108,7 +108,7 @@
 
         <div class="form-footer">
           <input type="checkbox" id="terms" required />
-          <label for="terms">I agree to the project rules</label>
+          <label for="terms">Es piekrītu projekta noteikumiem</label>
         </div>
       </form>
     </div>

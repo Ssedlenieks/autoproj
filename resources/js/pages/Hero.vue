@@ -17,19 +17,18 @@
 
   <!-- Language + Theme controls in header -->
   <div class="header-controls">
-    <GoogleTranslate />
     <ThemeToggle />
   </div>
 
   <div class="header-right">
-    <router-link v-if="!isAuthenticated" to="/register" class="login-btn">Sign Up</router-link>
+    <router-link v-if="!isAuthenticated" to="/register" class="login-btn">Reģistrēties</router-link>
     <div v-else class="user-header">
       <div class="user-info">
         <span class="user-name notranslate">{{ user.name }}</span>
         <span class="user-level notranslate">Lvl {{ user.level }} • {{ user.xp }} XP</span>
       </div>
       <router-link to="/dashboard" class="profile-btn">Dashboard</router-link>
-      <button @click="logout" class="logout-btn">Logout</button>
+      <button @click="logout" class="logout-btn">Izrakstīties</button>
     </div>
   </div>
 </header>
@@ -37,29 +36,29 @@
       <!-- Overlay + Content -->
       <div class="hero-content">
         <div class="content-inner">
-          <h1>Potato Car Builder</h1>
-          <p class="subtitle">Design. Tune. Compete. Build your dream setup from 3,847 real cars.</p>
+          <h1>Potato auto projektētājs</h1>
+          <p class="subtitle">Izveido savu sapņu auto projektu no reālajiem auto modeļiem.</p>
 
           <div class="stats-grid">
             <div class="stat">
               <div class="stat-number">3,847</div>
-              <div class="stat-label">Real Cars</div>
+              <div class="stat-label">Īsti auto</div>
             </div>
             <div class="stat">
               <div class="stat-number">12,000+</div>
-              <div class="stat-label">Engines</div>
+              <div class="stat-label">Motori</div>
             </div>
             <div class="stat">
               <div class="stat-number">∞</div>
-              <div class="stat-label">Setups</div>
+              <div class="stat-label">Iespējas</div>
             </div>
           </div>
 
           <router-link to="/builder" class="cta-btn">
-            Start Building Now →
+            Sākt projektēt →
           </router-link>
 
-          <div class="scroll-hint">↓ Scroll to explore</div>
+          <div class="scroll-hint">↓ Ritiniet lai uzzinātu</div>
         </div>
       </div>
     </div>
@@ -68,18 +67,18 @@
     <div class="features">
       <div class="feature-card">
         <div class="feature-icon">⚙</div>
-        <h3>Build & Tune</h3>
-        <p>Select any car, choose engines, add mods. Real performance data.</p>
+        <h3>Izveidot & Modificēt</h3>
+        <p>Atlasiet jebkuru auto, izvēlieties motorus, pievienojiet modifikācijas. Reāla veiktspējas dati.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">★</div>
-        <h3>Gamification</h3>
-        <p>Earn XP, unlock badges, compete on leaderboards.</p>
+        <h3>Spēļu funkcijas</h3>
+        <p>Iegūstat XP, iegūstat nozīmīgus sasniegumus, un sacensieties lai tiktu lideru sarakstiem.</p>
       </div>
       <div class="feature-card">
         <div class="feature-icon">◆</div>
-        <h3>Garage</h3>
-        <p>Save unlimited builds, track stats, share with friends.</p>
+        <h3>Garāža</h3>
+        <p>Saglabājiet neierobežotu skaitu projektu, sekojiet statistikai, dalieties ar draugiem.</p>
       </div>
     </div>
 
@@ -87,27 +86,27 @@
     <footer class="hero-footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Potato Car Builder</h4>
-          <p>Design and customize your dream cars with real performance data.</p>
+          <h4>Potato Auto projektētājs</h4>
+          <p>Izveidojat jūsu sapņu auto projektus no reālajiem auto modeļiem.</p>
         </div>
         <div class="footer-section">
           <h4>Quick Links</h4>
           <ul>
-            <li><router-link to="/builder">Builder</router-link></li>
+            <li><router-link to="/builder">Projektētājs</router-link></li>
             <li><a href="#features">Features</a></li>
-            <li><a href="#about">About</a></li>
+            <li><a href="#about">Par mums</a></li>
           </ul>
         </div>
         <div class="footer-section">
-          <h4>Resources</h4>
+          <h4>Resursi</h4>
           <ul>
-            <li><a href="#docs">Documentation</a></li>
+            <li><a href="#docs">Dokumentācija</a></li>
             <li><a href="#api">API</a></li>
-            <li><a href="#support">Support</a></li>
+            <li><a href="#support">Atbalsts</a></li>
           </ul>
         </div>
         <div class="footer-section">
-          <h4>Follow Us</h4>
+          <h4>Sekojat mums</h4>
           <div class="social-links">
             <a href="#" class="social">Twitter</a>
             <a href="#" class="social">Instagram</a>
@@ -116,7 +115,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Potato Car Builder. All rights reserved.</p>
+        <p>&copy; 2026 Potato Auto projektētājs. All rights reserved.</p>
       </div>
     </footer>
   </div>
@@ -127,12 +126,10 @@ import { useKeenSlider } from "keen-slider/vue.es"
 import "keen-slider/keen-slider.min.css"
 import { useAuth } from "../composables/useAuth"
 import ThemeToggle from "../components/ThemeToggle.vue"
-import GoogleTranslate from "../components/GoogleTranslate.vue"
 
 export default {
   components: {
     ThemeToggle,
-    GoogleTranslate,
   },
   setup() {
     const [container] = useKeenSlider(

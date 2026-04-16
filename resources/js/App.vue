@@ -3,7 +3,6 @@
 
     <!-- Global controls: fixed top-right on all pages except Hero -->
     <div v-if="$route.path !== '/'" class="global-controls">
-      <GoogleTranslate />
       <ThemeToggle />
     </div>
 
@@ -19,13 +18,11 @@
 <script>
 import { useAuth } from './composables/useAuth'
 import { onMounted } from 'vue'
-import GoogleTranslate from './components/GoogleTranslate.vue'
 import ThemeToggle from './components/ThemeToggle.vue'
 
 export default {
   name: 'App',
   components: {
-    GoogleTranslate,
     ThemeToggle
   },
   setup() {

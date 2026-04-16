@@ -2,10 +2,10 @@
   <div class="project-view-container">
 
     <div class="container">
-      <h1>Project View</h1>
+      <h1>Projektu apskate</h1>
       <p>Coming soon! Project ID: {{ id }}</p>
       <button @click="$router.push('/dashboard')" class="btn-back">
-        Back to Dashboard
+        Atpakaļ uz Dashboard
       </button>
     </div>
   </div>

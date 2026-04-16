@@ -2,11 +2,11 @@
   <div class="leaderboards-page">
     <header class="leaderboards-header">
       <div class="header-content">
-        <h1>Global Leaderboards</h1>
-        <p>Compete with the best builders worldwide</p>
+        <h1>Globālais Līderu Saraksts</h1>
+        <p>Sacensieties ar labākajiem projektētājiem pasaulē</p>
       </div>
       <button class="btn-back" @click="$router.push('/dashboard')">
-        Back to Dashboard
+        Atpakaļ uz Dashboard
       </button>
     </header>
 
@@ -15,8 +15,8 @@
       <!-- Top Builders by XP -->
       <section class="board-card top-builders">
         <div class="board-header">
-          <h2>Top Builders</h2>
-          <span class="board-subtitle">Ranked by XP</span>
+          <h2>Top projektētāji</h2>
+          <span class="board-subtitle">Reitings pēc XP</span>
         </div>
         <ul v-if="data.topXpUsers.length">
           <li
@@ -32,7 +32,7 @@
               <img v-if="user.avatar_url" :src="user.avatar_url" class="avatar" />
               <div class="info">
                 <p class="name">{{ user.name }}</p>
-                <p class="sub">Level {{ user.level }} &middot; {{ user.rank }} &middot; {{ user.builds_count }} builds</p>
+                <p class="sub">Level {{ user.level }} &middot; {{ user.rank }} &middot; {{ user.builds_count }} projekti</p>
               </div>
             </div>
             <div class="right">
@@ -41,16 +41,16 @@
           </li>
         </ul>
         <div v-else class="empty-state">
-          <div class="empty-icon">No data</div>
-          <p>No builders yet. Create your first build.</p>
+          <div class="empty-icon">Nav datu</div>
+          <p>Vēl nav projektētāju.</p>
         </div>
       </section>
 
       <!-- Strongest Builds -->
       <section class="board-card top-builds">
         <div class="board-header">
-          <h2>Strongest Builds</h2>
-          <span class="board-subtitle">Highest Final HP</span>
+          <h2>Labākie projekti</h2>
+          <span class="board-subtitle">Augstākā auto jauda</span>
         </div>
         <ul v-if="data.topHpBuilds.length">
           <li
@@ -75,16 +75,16 @@
           </li>
         </ul>
         <div v-else class="empty-state">
-          <div class="empty-icon">No data</div>
-          <p>No builds yet. Start tuning your first car.</p>
+          <div class="empty-icon">Nav datu</div>
+          <p>Vēl nav projektiem.</p>
         </div>
       </section>
 
       <!-- Most Power Added -->
       <section class="board-card top-hp-users">
         <div class="board-header">
-          <h2>Most Power Added</h2>
-          <span class="board-subtitle">Total HP Gain Per User</span>
+          <h2>Lielākā vispārējā jauda</h2>
+          <span class="board-subtitle">Kopējā HP pieaugums katram lietotājam</span>
         </div>
         <ul v-if="data.topHpUsers.length">
           <li
@@ -109,8 +109,8 @@
           </li>
         </ul>
         <div v-else class="empty-state">
-          <div class="empty-icon">No data</div>
-          <p>No HP gains yet. Install some parts.</p>
+          <div class="empty-icon">Nav datu</div>
+          <p>Vēl nav HP pieauguma.</p>
         </div>
       </section>
 

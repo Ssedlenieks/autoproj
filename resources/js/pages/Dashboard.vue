@@ -35,7 +35,7 @@
               style="display: none"
             />
 
-            <div v-if="uploading" class="upload-status">Uploading...</div>
+            <div v-if="uploading" class="upload-status">Augšuplādē...</div>
             <button
               v-if="user.avatar_url"
               @click="deleteAvatar"
@@ -56,7 +56,7 @@
               style="margin-top: 12px;"
               @click="$router.push('/leaderboards')"
             >
-              View Global Leaderboard
+              Apskatīt līderu sarakstu
             </button>
           </div>
         </div>
@@ -97,21 +97,21 @@
           <!-- PROTECTED: BLD acronym -->
           <div class="stat-icon notranslate">BLD</div>
           <div class="stat-value">{{ stats.total_builds }}</div>
-          <div class="stat-label">Total Builds</div>
+          <div class="stat-label">Kopējie būvējumi</div>
         </div>
 
         <div class="stat-card">
           <!-- PROTECTED: ACH acronym -->
           <div class="stat-icon notranslate">ACH</div>
           <div class="stat-value">{{ stats.achievements_unlocked }}</div>
-          <div class="stat-label">Achievements</div>
+          <div class="stat-label">Sasniegumi</div>
         </div>
 
         <div class="stat-card">
           <!-- PROTECTED: PWR acronym -->
           <div class="stat-icon notranslate">PWR</div>
           <div class="stat-value">+{{ stats.total_hp_gained }}</div>
-          <div class="stat-label">Total HP Gained</div>
+          <div class="stat-label">Kopējā HP</div>
         </div>
 
         <!-- NEW: Total Torque Gained -->
@@ -121,7 +121,7 @@
           <div class="stat-value">
             +{{ stats.total_torque_gained || 0 }}
           </div>
-          <div class="stat-label">Total Torque Gained</div>
+          <div class="stat-label">Kopējais iegūtais griezes moments</div>
         </div>
 
         <!-- Optional: Show Max Torque Build if you added it to backend -->
@@ -131,7 +131,7 @@
           <div class="stat-value">
             {{ stats.most_torquey_build.final_torque }}
           </div>
-          <div class="stat-label">Highest Torque</div>
+          <div class="stat-label">Augstākais griezes moments</div>
         </div>
       </div>
 
@@ -144,8 +144,8 @@
           class="empty-state"
         >
           <div class="empty-icon notranslate">!</div>
-          <h3>No achievements yet</h3>
-          <p>Complete builds to unlock achievements.</p>
+          <h3>Vēl nav gūti sasniegumi</h3>
+          <p>Izveidojiet projektu, lai atbloķētu sasniegumus.</p>
         </div>
 
         <div v-else class="achievements-grid">
@@ -172,7 +172,7 @@
       <!-- Builds Section -->
       <section class="builds-section">
         <div class="section-header">
-          <h2>Your Builds ({{ user.projects.length }})</h2>
+          <h2>Jūsu projekti ({{ user.projects.length }})</h2>
           <button
             @click="$router.push('/builder')"
             class="btn-new-build"
@@ -184,13 +184,13 @@
         <div v-if="user.projects.length === 0" class="empty-state">
           <!-- PROTECTED: ADD acronym -->
           <div class="empty-icon notranslate">ADD</div>
-          <h3>No builds yet</h3>
-          <p>Start building your dream car.</p>
+          <h3>Vēl nav projektu</h3>
+          <p>Sāc būvēt savu sapņu mašīnu</p>
           <button
             @click="$router.push('/builder')"
             class="btn-primary"
           >
-            Create First Build
+            Izveidot pirmo projektu
           </button>
         </div>
 
@@ -245,7 +245,7 @@
 
             <div class="build-stats">
               <div class="stat">
-                <span class="stat-label">Power (HP):</span>
+                <span class="stat-label">Jauda (HP):</span>
                 <span class="stat-value">
                   {{ project.base_hp }} → {{ project.final_hp }}
                   <span class="gain">
@@ -256,7 +256,7 @@
 
               <!-- NEW: Torque in Build List -->
               <div class="stat">
-                <span class="stat-label">Torque (Nm):</span>
+                <span class="stat-label">Griezes moments (Nm):</span>
                 <span class="stat-value">
                   {{ project.base_torque || '-' }}
                   →
@@ -268,7 +268,7 @@
               </div>
 
               <div class="stat">
-                <span class="stat-label">Parts Installed:</span>
+                <span class="stat-label">Detaļu skaits:</span>
                 <span class="stat-value">
                   {{ project.parts ? project.parts.length : 0 }}
                 </span>
@@ -286,9 +286,9 @@
     </div>
 
     <div v-else class="error-state">
-      <h2>Failed to load dashboard</h2>
+      <h2>Nespēj ielādēt paneli</h2>
       <button @click="loadDashboard" class="btn-retry">
-        Retry
+        Mēģināt vēlreiz
       </button>
     </div>
 

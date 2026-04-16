@@ -4,12 +4,12 @@
     <!-- Loading -->
     <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner"></div>
-      <p>Loading parts...</p>
+      <p>Loading detaļas...</p>
     </div>
 
     <!-- Header -->
     <header class="parts-header">
-      <button @click="goBack" class="back-btn">Back to Builder</button>
+      <button @click="goBack" class="back-btn">Atpakaļ uz Projektētāju</button>
       <div class="header-info">
         <h1>{{ carInfo.make }} {{ carInfo.model }}</h1>
         <p>{{ carInfo.trim }} • {{ carInfo.year }} • {{ engineInfo.code }}</p>
@@ -22,8 +22,8 @@
       <div class="parts-list">
         <div v-if="Object.keys(categories).length === 0 && !loading" class="empty-state">
           <div class="empty-icon"></div>
-          <h3>No parts available for this car/engine combo</h3>
-          <p>Try selecting a different engine or check back later</p>
+          <h3>Nav detaļu pieejamu šim automobiliem/motoram</h3>
+          <p>Mēģiniet izvēlēties citu motoru vai pārbaudiet vēlāk</p>
         </div>
 
         <div v-for="(parts, category) in categories" :key="category" class="category-section">
@@ -51,7 +51,7 @@
                   <span class="gain-value">+{{ part.torque_nm_gain }} Nm</span>
                 </div>
                 <div v-if="part.hp_gain === 0 && part.torque_nm_gain === 0" class="no-gain">
-                  Supporting Mod
+                  Atbalstošie modifikatori
                 </div>
               </div>
 
@@ -70,7 +70,7 @@
 
       <!-- Right: Build Summary -->
       <aside class="build-summary">
-        <h2>Your Build</h2>
+        <h2>Jūsu projekti</h2>
 
         <div class="summary-car-info">
           <p><strong>{{ carInfo.make }} {{ carInfo.model }}</strong></p>
@@ -131,8 +131,8 @@
     <!-- Save Build Modal -->
     <div v-if="showSaveModal" class="modal-overlay" @click="closeSaveModal">
       <div class="modal-content" @click.stop>
-        <h3>Name Your Build</h3>
-        <p>Give your project a custom name before saving to your garage.</p>
+        <h3>Nosauciet savu projektu</h3>
+        <p>Dod savam projektam pielāgotu vārdu pirms saglabāšanas jūsu garažā.</p>
 
         <input
           type="text"

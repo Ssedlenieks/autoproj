@@ -34,13 +34,13 @@
     <!-- Right Side: Login Form -->
     <div class="form-section">
       <div class="form-header">
-        <h1>Welcome Back</h1>
-        <p>Sign in to your Potato Car Builder account</p>
+        <h1>Sveicam atpakaļ !</h1>
+        <p>Pieslēgties savam kontam</p>
       </div>
 
       <form @submit.prevent="login" class="login-form">
         <div class="form-group">
-          <label for="email">Email or Username</label>
+          <label for="email">Epasts vai lietottājvārds</label>
           <input
             v-model="form.email"
             type="text"
@@ -52,7 +52,7 @@
         </div>
 
         <div class="form-group">
-          <label for="password">Password</label>
+          <label for="password">Parole</label>
           <input
             v-model="form.password"
             type="password"
@@ -68,7 +68,7 @@
             <input v-model="form.remember" type="checkbox" />
             Remember me
           </label>
-          <a href="#" class="forgot-link">Forgot password?</a>
+          <a href="#" class="forgot-link">Aizmirsta parole?</a>
         </div>
 
         <div v-if="errors.general" class="error-message">{{ errors.general }}</div>
@@ -81,11 +81,11 @@
         <div class="divider">or</div>
 
         <button type="button" class="btn-register" @click="goToRegister">
-          Create New Account
+          Izveidot jaunu kontu
         </button>
 
         <div class="form-footer">
-          <p>Don't have an account? <router-link to="/register">Register here</router-link></p>
+          <p>Vēl nav konta? <router-link to="/register">Reģistrējies šeit</router-link></p>
         </div>
       </form>
     </div>
