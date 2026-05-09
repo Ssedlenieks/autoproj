@@ -31,12 +31,15 @@
       </div>
     </div>
 
-    <!-- Right Side: Login Form -->
-    <div class="form-section">
-      <div class="form-header">
-        <h1>Sveicam atpakaļ !</h1>
-        <p>Pieslēgties savam kontam</p>
-      </div>
+     <!-- Right Side: Login Form -->
+     <div class="form-section">
+       <div class="form-header">
+         <button @click="goBack" class="back-link">
+           ← Atpakaļ
+         </button>
+         <h1>Sveicam atpakaļ !</h1>
+         <p>Pieslēgties savam kontam</p>
+       </div>
 
       <form @submit.prevent="login" class="login-form">
         <div class="form-group">
@@ -45,7 +48,7 @@
             v-model="form.email"
             type="text"
             id="email"
-            placeholder="your@email.com or username"
+            placeholder="jūsu@epasts.com vai lietotājvārds"
             required
           />
           <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
@@ -57,7 +60,7 @@
             v-model="form.password"
             type="password"
             id="password"
-            placeholder="Enter password"
+            placeholder="Ievadiet paroli"
             required
           />
           <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
@@ -66,7 +69,7 @@
         <div class="remember-forgot">
           <label class="remember">
             <input v-model="form.remember" type="checkbox" />
-            Remember me
+            Atcerēties mani
           </label>
           <a href="#" class="forgot-link">Aizmirsta parole?</a>
         </div>
@@ -75,7 +78,7 @@
         <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
         <button type="submit" class="btn-login" :disabled="loading">
-          {{ loading ? 'Signing in...' : 'Sign In' }}
+          {{ loading ? 'Pieslēdzas...' : 'Pieslēgties' }}
         </button>
 
         <div class="divider">or</div>
@@ -206,9 +209,12 @@ export default {
         this.loading = false
       }
     },
-    goToRegister() {
-      this.$router.push('/register');
-    },
+     goToRegister() {
+       this.$router.push('/register');
+     },
+     goBack() {
+       this.$router.back();
+     },
   },
 };
 </script>
@@ -422,10 +428,38 @@ html[data-color-scheme="dark"] .form-header h1,
   transition: color 0.3s ease;
 }
 
-html[data-color-scheme="dark"] .form-header p,
-:global([data-color-scheme="dark"]) .form-header p {
-  color: #a0aec0;
-}
+ html[data-color-scheme="dark"] .form-header p,
+ :global([data-color-scheme="dark"]) .form-header p {
+   color: #a0aec0;
+ }
+
+ .back-link {
+   display: inline-block;
+   margin-bottom: 1rem;
+   padding: 6px 12px;
+   background: transparent;
+   border: none;
+   color: #10b981;
+   cursor: pointer;
+   font-weight: 600;
+   font-size: 0.9rem;
+   transition: color 0.2s;
+ }
+
+ .back-link:hover {
+   color: #059669;
+   text-decoration: underline;
+ }
+
+ html[data-color-scheme="dark"] .back-link,
+ :global([data-color-scheme="dark"]) .back-link {
+   color: #ffd700;
+ }
+
+ html[data-color-scheme="dark"] .back-link:hover,
+ :global([data-color-scheme="dark"]) .back-link:hover {
+   color: #ffed4e;
+ }
 
 .login-form {
   display: flex;

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class User extends Authenticatable
 {
@@ -36,20 +37,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // Add avatar_url to appends so it's always included in JSON
     protected $appends = ['avatar_url'];
 
     // ================================
     // ACCESSORS
     // ================================
 
-    /**
-     * Get the avatar URL attribute
-     * This makes $user->avatar_url work automatically
-     */
     public function getAvatarUrlAttribute()
     {
-        // Check if avatar column has a value
         if ($this->attributes['avatar'] ?? null) {
             return Storage::url($this->attributes['avatar']);
         }
@@ -96,11 +91,19 @@ class User extends Authenticatable
     // ================================
 
     /**
-     * Get total points from all achievements
+     * Get total points from achievements + completed daily challenges
      */
     public function totalPoints(): int
     {
-        return $this->achievements()->sum('points');
+        $achievementPoints = $this->achievements()->sum('points');
+
+        $challengePoints = DB::table('user_challenge_progress')
+            ->join('daily_challenges', 'daily_challenges.id', '=', 'user_challenge_progress.challenge_id')
+            ->where('user_challenge_progress.user_id', $this->id)
+            ->where('user_challenge_progress.completed', true)
+            ->sum('daily_challenges.points');
+
+        return $achievementPoints + (int) $challengePoints;
     }
 
     /**
@@ -110,7 +113,6 @@ class User extends Authenticatable
      * Level 2: 225 pts (100 + 125)
      * Level 3: 381 pts (225 + 156)
      * Level 4: 576 pts (381 + 195)
-     * etc.
      */
     public function level(): int
     {
@@ -122,7 +124,6 @@ class User extends Authenticatable
         while ($points >= $requiredPoints + $pointsForNextLevel) {
             $requiredPoints += $pointsForNextLevel;
             $level++;
-            // Each level requires 25% more points than the previous increment
             $pointsForNextLevel = (int) ceil($pointsForNextLevel * 1.25);
         }
 
@@ -206,8 +207,8 @@ class User extends Authenticatable
             $level >= 20 => 'Expert',
             $level >= 15 => 'Advanced',
             $level >= 10 => 'Intermediate',
-            $level >= 5 => 'Enthusiast',
-            default => 'Beginner',
+            $level >= 5  => 'Enthusiast',
+            default      => 'Beginner',
         };
     }
 
@@ -219,24 +220,22 @@ class User extends Authenticatable
         $level = $this->level();
 
         return match(true) {
-            $level >= 40 => '#ff0000', // Red - Legend
-            $level >= 30 => '#ff00ff', // Magenta - Master
-            $level >= 20 => '#ffd700', // Gold - Pro
-            $level >= 15 => '#ff8c00', // Orange - Expert
-            $level >= 10 => '#9370db', // Purple - Advanced
-            $level >= 5 => '#1e90ff',  // Blue - Intermediate
-            default => '#10b981',       // Green - Beginner
+            $level >= 40 => '#ff0000',
+            $level >= 30 => '#ff00ff',
+            $level >= 20 => '#ffd700',
+            $level >= 15 => '#ff8c00',
+            $level >= 10 => '#9370db',
+            $level >= 5  => '#1e90ff',
+            default      => '#10b981',
         };
     }
 
     // ================================
-    // LEGACY BADGE SYSTEM (Optional - can remove if not using)
+    // LEGACY BADGE SYSTEM
     // ================================
 
     public function addBadge(string $badge): void
     {
-        // This is now handled by achievements table
-        // Keeping for backwards compatibility
         $badges = $this->badges ?? [];
         if (!in_array($badge, $badges)) {
             $badges[] = $badge;

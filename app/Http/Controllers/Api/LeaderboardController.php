@@ -34,6 +34,7 @@ class LeaderboardController extends Controller
                 'projects.base_hp',
                 'users.name as user_name'
             )
+            ->where('is_public', true)
             ->join('users', 'users.id', '=', 'projects.user_id')
             ->orderByDesc('projects.final_hp')
             ->limit(10)

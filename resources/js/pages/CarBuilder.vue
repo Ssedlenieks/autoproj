@@ -2,22 +2,22 @@
   <div class="builder-container">
 
     <!-- Loading Overlay -->
-    <div v-if="Lādējās" class="loading-overlay">
+    <div v-if="loading" class="loading-overlay">
       <div class="loading-spinner"></div>
       <p>Lādējās...</p>
     </div>
 
-    <!-- Header -->
-    <header class="builder-header">
-      <div class="header-left">
-        <h1>Auto projektēšana</h1>
-      </div>
-      <div class="header-right">
-        <span class="user-info">
-          {{ user.builds }} Projekti
-        </span>
-      </div>
-    </header>
+     <!-- Header -->
+     <header class="builder-header">
+       <div class="header-left">
+         <button @click="goBack" class="back-btn" title="Atpakaļ">
+           ← Atpakaļ
+         </button>
+         <h1>Auto projektēšana</h1>
+       </div>
+       <div class="header-right">
+       </div>
+     </header>
 
     <!-- Toast Notifications -->
     <div v-if="toast.show" :class="['toast', toast.type]">
@@ -41,9 +41,9 @@
 
           <!-- Make Model -->
           <div class="filter-section">
-            <h3>Make/Model</h3>
+            <h3>Marka/Modelis</h3>
             <select v-model="selectedMake" @change="loadModels" class="filter-select">
-              <option value="">Select Make</option>
+              <option value="">Izvēlities marku</option>
               <option v-for="make in makes" :key="make.id" :value="make.id">
                 {{ make.name }}
               </option>
@@ -56,7 +56,7 @@
               :disabled="loadingModels"
             >
               <option value="">Izvēlities modeli</option>
-              <option v-for="model in modeļi" :key="model.id" :value="model.id">
+              <option v-for="model in models" :key="model.id" :value="model.id">
                 {{ model.name }}
               </option>
               <option v-if="loadingModels" value="" disabled>Lādējās...</option>
@@ -100,7 +100,7 @@
 
           <!-- Sort Options -->
           <div class="filter-section">
-            <h3>Sortēt pēc</h3>
+            <h3>Kārtot pēc</h3>
             <select v-model="sortBy" @change="applySorting" class="filter-select">
               <option value="year_desc">Gads: Jaunākais</option>
               <option value="year_asc">Gads: Vecākais</option>
@@ -129,7 +129,7 @@
             <span v-if="hasActiveFilters" class="filter-badge">{{ activeFilterCount }}</span>
           </button>
           <div class="mobile-results-info">
-            <span v-if="selectedModel">{{ filteredCars.length }} variants</span>
+            <span v-if="selectedModel">{{ filteredCars.length }} varianti</span>
             <span v-else>Izvēlaties modeli un marku</span>
           </div>
         </div>
@@ -156,13 +156,13 @@
               <img :src="getImageUrl(carGroup.image_url)" :alt="carGroup.trim" class="car-image" loading="lazy" @error="handleImageError" />
             </div>
             <div class="car-variants-badge">
-              {{ carGroup.variants.length }} variant{{ carGroup.variants.length !== 1 ? 's' : '' }}
+              {{ carGroup.variants.length }} variant{{ carGroup.variants.length !== 1 ? 'i' : '' }}
             </div>
 
             <div class="car-card-content">
               <h3>{{ carGroup.trim }}</h3>
               <p class="car-specs">
-                {{ getYearRange(carGroup) }} • {{ carGroup.totalEngines }} engine{{ carGroup.totalEngines !== 1 ? 's' : '' }}
+                {{ getYearRange(carGroup) }} • {{ carGroup.totalEngines }} motor{{ carGroup.totalEngines !== 1 ? 'i' : '' }}
               </p>
             </div>
             <div class="car-footer">
@@ -203,103 +203,110 @@
       </main>
 
       <!-- Car Details Sidebar -->
-      <aside
-        v-if="carDetails"
-        :class="['details-sidebar', { 'slide-in': carDetails, 'mobile-details': isMobile }]"
-      >
-        <div class="details-inner">
-          <!-- Close button -->
-          <button @click="closeCar" class="close-btn">✕</button>
+<!-- Car Details Sidebar -->
+<aside
+  v-if="carDetails"
+  :class="[
+    'details-sidebar',
+    {
+      'slide-in': carDetails,
+      'mobile-details': isMobile,
+      'details-open': isMobile && carDetails,
+    },
+  ]"
+>
+  <div class="details-inner">
+    <!-- Close button -->
+    <button @click="closeCar" class="close-btn">✕</button>
 
-          <div class="details-content">
-            <div class="details-image-container">
-              <img :src="getImageUrl(carDetails.image_url)" :alt="carDetails.trim" class="details-img" @error="handleImageError" />
-            </div>
+    <div class="details-content">
+      <div class="details-image-container">
+        <img :src="getImageUrl(carDetails.image_url)" :alt="carDetails.trim" class="details-img" @error="handleImageError" />
+      </div>
 
-            <div class="details-title">
-              <h2>{{ carDetails.trim }}</h2>
-              <p class="details-subtitle">{{ selectedModelName }} • {{ selectedMakeName }}</p>
-            </div>
+      <div class="details-title">
+        <h2>{{ carDetails.trim }}</h2>
+        <p class="details-subtitle">{{ selectedModelName }} • {{ selectedMakeName }}</p>
+      </div>
 
-            <!-- Variant Selector -->
-            <div class="variant-selector-section">
-              <h3>Izvēlēties variantu</h3>
-              <div class="variant-scroll">
-                <button
-                  v-for="(variant, idx) in carDetails.variants"
-                  :key="variant.id"
-                  @click="selectVariant(idx)"
-                  :class="['variant-option', { active: selectedVariantIndex === idx }]"
-                >
-                  <div class="variant-year">{{ variant.year }}</div>
-                  <div class="variant-info">
-                    <span>{{ variant.body_style }}</span>
-                    <span>{{ variant.drive_type }}</span>
-                  </div>
-                </button>
-              </div>
+      <!-- Variant Selector -->
+      <div class="variant-selector-section">
+        <h3>Izvēlēties variantu</h3>
+        <div class="variant-scroll">
+          <button
+            v-for="(variant, idx) in carDetails.variants"
+            :key="variant.id"
+            @click="selectVariant(idx)"
+            :class="['variant-option', { active: selectedVariantIndex === idx }]"
+          >
+            <div class="variant-year">{{ variant.year }}</div>
+            <div class="variant-info">
+              <span>{{ variant.body_style }}</span>
+              <span>{{ variant.drive_type }}</span>
             </div>
+          </button>
+        </div>
+      </div>
 
-            <!-- Selected Variant Details -->
-            <div v-if="selectedVariant" class="details-specs">
-              <h3>Specifications</h3>
-              <div class="specs-grid">
-                <div class="spec-item">
-                  <span class="spec-label">Year</span>
-                  <span class="spec-value">{{ selectedVariant.year }}</span>
-                </div>
-                <div class="spec-item">
-                  <span class="spec-label">Body Type</span>
-                  <span class="spec-value">{{ selectedVariant.body_style }}</span>
-                </div>
-                <div class="spec-item">
-                  <span class="spec-label">Drive Type</span>
-                  <span class="spec-value">{{ selectedVariant.drive_type }}</span>
-                </div>
-                <div class="spec-item">
-                  <span class="spec-label">Weight</span>
-                  <span class="spec-value">{{ formatWeight(selectedVariant.weight_kg) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Engine Selector -->
-            <div v-if="selectedVariant && selectedVariant.engines && selectedVariant.engines.length" class="engine-selector-section">
-              <h3>Select Engine</h3>
-              <div class="engine-scroll">
-                <button
-                  v-for="(engine, idx) in selectedVariant.engines"
-                  :key="engine.id"
-                  @click="selectEngine(idx)"
-                  :class="['engine-option', { active: selectedEngineIndex === idx }]"
-                >
-                  <div class="engine-code">{{ engine.code }}</div>
-                  <div class="engine-specs">
-                    <span>{{ engine.pivot.power_hp }} HP</span>
-                    <span>{{ engine.pivot.torque_nm }} Nm</span>
-                  </div>
-                  <div class="engine-info">
-                    <span>{{ engine.fuel_type }}</span>
-                    <span>{{ engine.cylinder }} cyl</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-
-            <!-- Action Buttons -->
-            <div class="details-actions">
-              <button class="btn-primary" @click="saveToGarage" :disabled="saving">
-                {{ saving ? 'Saglabā...' : 'Saglabāt' }}
-              </button>
-              <!-- UPDATED: Changed to goToModIt -->
-              <button class="btn-secondary" @click="goToModIt" :disabled="!selectedEngine">
-                🔧 Mod It
-              </button>
-              <button class="btn-secondary" @click="shareBuild">Share</button>
-            </div>
+      <!-- Selected Variant Details -->
+      <div v-if="selectedVariant" class="details-specs">
+        <h3>Specifications</h3>
+        <div class="specs-grid">
+          <div class="spec-item">
+            <span class="spec-label">Gads</span>
+            <span class="spec-value">{{ selectedVariant.year }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Virsbūve</span>
+            <span class="spec-value">{{ selectedVariant.body_style }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Piedziņas tips</span>
+            <span class="spec-value">{{ selectedVariant.drive_type }}</span>
+          </div>
+          <div class="spec-item">
+            <span class="spec-label">Svars</span>
+            <span class="spec-value">{{ formatWeight(selectedVariant.weight_kg) }}</span>
           </div>
         </div>
-      </aside>
+      </div>
+
+      <!-- Engine Selector -->
+      <div v-if="selectedVariant && selectedVariant.engines && selectedVariant.engines.length" class="engine-selector-section">
+        <h3>Izvēlēties motoru</h3>
+        <div class="engine-scroll">
+          <button
+            v-for="(engine, idx) in selectedVariant.engines"
+            :key="engine.id"
+            @click="selectEngine(idx)"
+            :class="['engine-option', { active: selectedEngineIndex === idx }]"
+          >
+            <div class="engine-code">{{ engine.code }}</div>
+            <div class="engine-specs">
+              <span>{{ engine.pivot.power_hp }} HP</span>
+              <span>{{ engine.pivot.torque_nm }} Nm</span>
+            </div>
+            <div class="engine-info">
+              <span>{{ engine.fuel_type }}</span>
+              <span>{{ engine.cylinder }} cilindri</span>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="details-actions">
+        <button class="btn-primary" @click="saveToGarage" :disabled="saving">
+          {{ saving ? 'Saglabā...' : 'Saglabāt' }}
+        </button>
+        <button class="btn-secondary" @click="goToModIt" :disabled="!selectedEngine">
+           Izveidot projektu
+        </button>
+      </div>
+    </div>
+  </div>
+</aside>
+
     </div>
   </div>
 </template>
@@ -712,12 +719,17 @@ goToModIt() {
       return kg ? `${kg} kg` : 'N/A'
     },
 
-    shareBuild() {
-      if (!this.carDetails) return
-      const url = `${window.location.origin}/builder?make=${this.selectedMake}&model=${this.selectedModel}`
-      navigator.clipboard.writeText(url)
-      this.showToast('Build link copied!', 'success')
-    },
+     shareBuild() {
+       if (!this.carDetails) return
+       const url = `${window.location.origin}/builder?make=${this.selectedMake}&model=${this.selectedModel}`
+       navigator.clipboard.writeText(url)
+       this.showToast('Build link copied!', 'success')
+     },
+
+     goBack() {
+       // Go back to homepage (Hero)
+       this.$router.push('/')
+     },
 
     loadUserData() {
       const data = localStorage.getItem('user')
@@ -829,14 +841,52 @@ html[data-color-scheme='dark'] .loading-spinner,
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-html[data-color-scheme='dark'] .builder-header,
-:global([data-color-scheme='dark']) .builder-header {
-  background: #1a1a1a;
-  border-bottom-color: #2d2d2d;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
+ html[data-color-scheme='dark'] .builder-header,
+ :global([data-color-scheme='dark']) .builder-header {
+   background: #1a1a1a;
+   border-bottom-color: #2d2d2d;
+   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+ }
 
-.header-left h1 {
+ .back-btn {
+   padding: 8px 16px;
+   background: transparent;
+   border: 1px solid #e2e8f0;
+   border-radius: 6px;
+   color: #1e293b;
+   cursor: pointer;
+   font-weight: 600;
+   font-size: 0.9rem;
+   margin-right: 1rem;
+   transition: all 0.2s;
+ }
+
+ html[data-color-scheme='dark'] .back-btn,
+ :global([data-color-scheme='dark']) .back-btn {
+   background: transparent;
+   border-color: #404040;
+   color: #f5f5f5;
+ }
+
+ .back-btn:hover {
+   background: #f1f5f9;
+   border-color: #10b981;
+   color: #10b981;
+ }
+
+ html[data-color-scheme='dark'] .back-btn:hover,
+ :global([data-color-scheme='dark']) .back-btn:hover {
+   background: #2d2d2d;
+   border-color: #ffd700;
+   color: #ffd700;
+ }
+
+ .header-left {
+   display: flex;
+   align-items: center;
+ }
+
+ .header-left h1 {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
@@ -2239,39 +2289,77 @@ html[data-color-scheme='dark'] .btn-secondary:hover:not(:disabled),
     border-top-color: #2d2d2d;
   }
 
-  .details-sidebar.mobile-details.details-open {
-    right: 0;
-  }
-}
+   .details-sidebar.mobile-details.details-open {
+     right: 0;
+   }
+ }
 
-@media (max-width: 640px) {
-  .builder-header {
-    padding: 1rem;
-  }
+ .back-btn {
+   padding: 8px 16px;
+   background: transparent;
+   border: 1px solid #e2e8f0;
+   border-radius: 6px;
+   color: #1e293b;
+   cursor: pointer;
+   font-weight: 600;
+   font-size: 0.9rem;
+   margin-right: 1rem;
+   transition: all 0.2s;
+ }
 
-  .header-left h1 {
-    font-size: 1.2rem;
-  }
+ html[data-color-scheme='dark'] .back-btn,
+ :global([data-color-scheme='dark']) .back-btn {
+   background: transparent;
+   border-color: #404040;
+   color: #f5f5f5;
+ }
 
-  .user-info {
-    display: none;
-  }
+   .back-btn:hover {
+     background: #f1f5f9;
+     border-color: #10b981;
+     color: #10b981;
+   }
 
-  .cars-grid {
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 10px;
-  }
+   html[data-color-scheme='dark'] .back-btn:hover,
+   :global([data-color-scheme='dark']) .back-btn:hover {
+     background: #2d2d2d;
+     border-color: #ffd700;
+     color: #ffd700;
+   }
 
-  .car-card-content {
-    padding: 10px;
-  }
+   .header-left {
+     display: flex;
+     align-items: center;
+   }
 
-  .car-card-content h3 {
-    font-size: 0.9rem;
-  }
+ @media (max-width: 640px) {
+   .builder-header {
+     padding: 1rem;
+   }
 
-  .top-bar h2 {
-    font-size: 1.3rem;
-  }
-}
+   .header-left h1 {
+     font-size: 1.2rem;
+   }
+
+   .user-info {
+     display: none;
+   }
+
+   .cars-grid {
+     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+     gap: 10px;
+   }
+
+   .car-card-content {
+     padding: 10px;
+   }
+
+   .car-card-content h3 {
+     font-size: 0.9rem;
+   }
+
+   .top-bar h2 {
+     font-size: 1.3rem;
+   }
+ }
 </style>

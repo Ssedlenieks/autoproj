@@ -232,22 +232,13 @@ html, body {
   box-shadow: 0 20px 40px rgba(255, 215, 0, 0.05);
 }
 
-/* Sits between POTATO and the login buttons, flows naturally */
 .header-controls {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin: 0 auto 0 2rem; /* Pushes it away from POTATO logo */
+  margin: 0 auto 0 2rem;
 }
 
-@media (max-width: 768px) {
-  .header-controls {
-    gap: 8px;
-    margin-left: 1rem;
-  }
-}
-
-/* Background Carousel - Keen Slider */
 .bg-carousel {
   position: absolute;
   top: 0;
@@ -280,13 +271,11 @@ html, body {
   padding: 0;
 }
 
-/* Keen Slider Transitions */
 .keen-slider__slide {
   opacity: 1;
   transition: opacity 0.5s ease-in-out;
 }
 
-/* Dark Overlay */
 .hero-section::before {
   content: '';
   position: absolute;
@@ -304,7 +293,6 @@ html, body {
   background: linear-gradient(135deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.85) 100%);
 }
 
-/* Minimal Header */
 .hero-header {
   position: relative;
   z-index: 3;
@@ -379,7 +367,6 @@ html, body {
   border-color: rgba(255, 215, 0, 0.8);
 }
 
-/* User Header Section */
 .user-header {
   display: flex;
   gap: 1rem;
@@ -451,7 +438,6 @@ html, body {
   color: white;
 }
 
-/* Content */
 .hero-content {
   position: absolute;
   top: 0;
@@ -493,7 +479,6 @@ html, body {
   line-height: 1.6;
 }
 
-/* Stats Grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -512,7 +497,7 @@ html, body {
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.12);
   transition: all 0.3s;
-  min-width: 0; /* prevent grid blowout */
+  min-width: 0;
   overflow: hidden;
 }
 
@@ -542,7 +527,6 @@ html, body {
   overflow-wrap: break-word;
 }
 
-/* CTA Button */
 .cta-btn {
   display: inline-block;
   padding: 1.1rem 2.8rem;
@@ -577,7 +561,6 @@ html, body {
   transform: translateY(-2px);
 }
 
-/* Scroll Hint */
 .scroll-hint {
   position: absolute;
   bottom: 30px;
@@ -594,7 +577,6 @@ html, body {
   50% { transform: translateX(-50%) translateY(-12px); }
 }
 
-/* Smooth transition between hero and features */
 .hero-transition {
   height: 80px;
   background: linear-gradient(180deg,
@@ -614,7 +596,6 @@ html, body {
     rgba(10, 10, 10, 0) 100%);
 }
 
-/* Features Section */
 .features {
   position: relative;
   display: grid;
@@ -632,7 +613,6 @@ html, body {
   background: linear-gradient(180deg, rgba(10, 10, 10, 0.95) 0%, rgba(26, 26, 26, 0.9) 25%, rgba(30, 30, 30, 0.85) 50%, rgba(20, 20, 20, 0.9) 75%, #0a0a0a 100%);
 }
 
-/* Light mode: Bottom glow */
 .features::after {
   content: '';
   position: absolute;
@@ -646,7 +626,6 @@ html, body {
   z-index: 0;
 }
 
-/* Dark mode: Bottom glow (golden) */
 [data-color-scheme="dark"] .features::after {
   background: radial-gradient(ellipse at center bottom, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
 }
@@ -714,7 +693,6 @@ html, body {
   color: #a0aec0;
 }
 
-/* Footer */
 .hero-footer {
   position: relative;
   z-index: 2;
@@ -836,14 +814,19 @@ html, body {
   overflow-x: hidden;
 }
 
-/* Mobile */
+/* ===== MOBILE ===== */
 @media (max-width: 768px) {
-  .hero-header {
-    padding: 1rem;
+  .hero-header { 
+    padding: 10px 1rem 1rem 1rem;
   }
 
   .header-left h2 {
     font-size: 1.3rem;
+  }
+
+  .header-controls {
+    gap: 8px;
+    margin-left: 1rem;
   }
 
   .header-right {
@@ -869,19 +852,44 @@ html, body {
     font-size: 0.85rem;
   }
 
+  .hero-content {
+    justify-content: flex-start;
+    padding: 150px 1rem 1rem 1rem;
+  }
+
   .content-inner h1 {
-    font-size: 2.2rem;
+    font-size: 2rem;
+    margin-bottom: 0.6rem;
   }
 
   .subtitle {
-    font-size: 1rem;
-    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
   }
 
   .stats-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+    width: 100%;
+  }
+
+  .stat {
+    padding: 1rem 0.5rem;
+  }
+
+  .stat-number {
+    font-size: 1.4rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  .cta-btn {
+    padding: 0.85rem 2rem;
+    font-size: 0.9rem;
+    margin-bottom: 0.8rem;
   }
 
   .features {
@@ -895,31 +903,44 @@ html, body {
     gap: 2rem;
   }
 
-  .cta-btn {
-    padding: 0.95rem 2.5rem;
-    font-size: 0.95rem;
-  }
-
   .hero-transition {
     height: 40px;
   }
 }
 
 @media (max-width: 480px) {
-  .footer-content {
-    grid-template-columns: 1fr;
+  .hero-content {
+    justify-content: flex-start;
+    padding: 120px 0.8rem 1rem 0.8rem;
   }
 
   .content-inner h1 {
-    font-size: 1.8rem;
+    font-size: 1.7rem;
   }
 
   .subtitle {
-    font-size: 0.95rem;
+    font-size: 0.88rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .stat {
+    padding: 0.75rem 0.3rem;
   }
 
   .stat-number {
-    font-size: 1.8rem;
+    font-size: 1.15rem;
+  }
+
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
   }
 
   .feature-icon {

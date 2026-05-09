@@ -8,15 +8,12 @@ import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css'
 import { useDarkMode } from './composables/useDarkMode'
 
-// Dark mode
 const { colorScheme, toggleDarkMode } = useDarkMode()
 
-// Axios config
 axios.defaults.baseURL = 'http://autoproj.test'
 axios.defaults.withCredentials = true
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
-// Router
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -53,29 +50,65 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/admin',
+      name: 'Admin',
+      component: () => import('./pages/AdminPanel.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true },
+    },
+    {
+      path: '/editor',
+      name: 'Editor',
+      component: () => import('./pages/EditorPanel.vue'),
+      meta: { requiresAuth: true, requiresEditor: true },
+    },
+    {
       path: '/leaderboards',
       name: 'Leaderboards',
       component: () => import('./pages/Leaderboards.vue'),
       meta: { requiresAuth: true },
     },
+
+    {
+      path: '/explore',
+      name: 'Explore',
+      component: () => import('./pages/PublicProjects.vue'),
+      meta: { requiresAuth: true },
+    },
+
+    {
+      path: '/projects/:id',
+      name: 'ProjectView',
+      component: () => import('./pages/ProjectView.vue'),
+      props: true,
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
-// Auth guard
 router.beforeEach((to, from, next) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null')
   const isAuthenticated = !!user
+  const roleId = user?.role_id
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
-  } else if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
-    next({ name: 'Dashboard' })
-  } else {
-    next()
+    return next({ name: 'Login', query: { redirect: to.fullPath } })
   }
+
+  if ((to.name === 'Login' || to.name === 'Register') && isAuthenticated) {
+    return next({ name: 'Dashboard' })
+  }
+
+  if (to.meta.requiresAdmin && roleId !== 2) {
+    return next({ name: 'Dashboard' })
+  }
+
+  if (to.meta.requiresEditor && roleId !== 2 && roleId !== 3) {
+    return next({ name: 'Dashboard' })
+  }
+
+  next()
 })
 
-// Axios interceptor
 axios.interceptors.response.use(
   response => response,
   error => {
@@ -87,7 +120,6 @@ axios.interceptors.response.use(
   }
 )
 
-// Vue app
 const app = createApp(App)
 
 app.provide('colorScheme', colorScheme)

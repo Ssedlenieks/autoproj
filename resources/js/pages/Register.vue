@@ -27,12 +27,15 @@
       </div>
     </div>
 
-    <!-- Right Side: Registration Form -->
-    <div class="form-section">
-      <div class="form-header">
-        <h1>Izveidot kontu</h1>
-        <p>Reģistrējies, lai sāktu projektēt savu sapņu mašīnu</p>
-      </div>
+     <!-- Right Side: Registration Form -->
+     <div class="form-section">
+       <div class="form-header">
+         <button @click="goBack" class="back-link">
+           ← Atpakaļ
+         </button>
+         <h1>Izveidot kontu</h1>
+         <p>Reģistrējies, lai sāktu projektēt savu sapņu mašīnu</p>
+       </div>
 
       <form @submit.prevent="register" class="register-form">
         <div class="form-group">
@@ -41,7 +44,7 @@
             v-model="form.name"
             type="text"
             id="name"
-            placeholder="Your full name"
+            placeholder="Jūsu vārds"
             required
           />
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
@@ -53,7 +56,7 @@
             v-model="form.email"
             type="email"
             id="email"
-            placeholder="your@email.com"
+            placeholder="jūsu@epasts.com"
             required
           />
           <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
@@ -65,7 +68,7 @@
             v-model="form.username"
             type="text"
             id="username"
-            placeholder="Choose a username"
+            placeholder="Izvēlēties lietotājvārdu"
             required
           />
           <span v-if="errors.username" class="error-text">{{ errors.username }}</span>
@@ -77,7 +80,7 @@
             v-model="form.password"
             type="password"
             id="password"
-            placeholder="Enter password"
+            placeholder="Ievadiet paroli"
             required
           />
           <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
@@ -89,9 +92,10 @@
             v-model="form.password_confirmation"
             type="password"
             id="password_confirmation"
-            placeholder="Confirm password"
+            placeholder="Apstiprināt paroli"
             required
           />
+          <span v-if="errors.password_confirmation" class="error-text">{{ errors.password_confirmation }}</span>
         </div>
 
         <div v-if="errors.general" class="error-message">{{ errors.general }}</div>
@@ -99,10 +103,10 @@
 
         <div class="form-actions">
           <button type="submit" class="btn-register" :disabled="loading">
-            {{ loading ? 'Creating Account...' : 'Create Account' }}
+            {{ loading ? 'Izveido kontu...' : 'Izveidot kontu' }}
           </button>
           <button type="button" class="btn-login" @click="goToLogin">
-            Sign In
+            Pieslēgties
           </button>
         </div>
 
@@ -238,9 +242,12 @@ export default {
         this.loading = false
       }
     },
-    goToLogin() {
-      this.$router.push('/login');
-    },
+     goToLogin() {
+       this.$router.push('/login');
+     },
+     goBack() {
+       this.$router.back();
+     },
   },
 };
 </script>
@@ -454,10 +461,38 @@ html[data-color-scheme="dark"] .form-header h1,
   transition: color 0.3s ease;
 }
 
-html[data-color-scheme="dark"] .form-header p,
-:global([data-color-scheme="dark"]) .form-header p {
-  color: #a0aec0;
-}
+ html[data-color-scheme="dark"] .form-header p,
+ :global([data-color-scheme="dark"]) .form-header p {
+   color: #a0aec0;
+ }
+
+ .back-link {
+   display: inline-block;
+   margin-bottom: 1rem;
+   padding: 6px 12px;
+   background: transparent;
+   border: none;
+   color: #10b981;
+   cursor: pointer;
+   font-weight: 600;
+   font-size: 0.9rem;
+   transition: color 0.2s;
+ }
+
+ .back-link:hover {
+   color: #059669;
+   text-decoration: underline;
+ }
+
+ html[data-color-scheme="dark"] .back-link,
+ :global([data-color-scheme="dark"]) .back-link {
+   color: #ffd700;
+ }
+
+ html[data-color-scheme="dark"] .back-link:hover,
+ :global([data-color-scheme="dark"]) .back-link:hover {
+   color: #ffed4e;
+ }
 
 .register-form {
   display: flex;

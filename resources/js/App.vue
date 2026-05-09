@@ -1,8 +1,8 @@
 <template>
   <div v-if="!loading" class="app">
 
-    <!-- Global controls: fixed top-right on all pages except Hero -->
-    <div v-if="$route.path !== '/'" class="global-controls">
+    <!-- Global controls: fixed top-right on all pages except Hero, Admin and Editor -->
+    <div v-if="$route.path !== '/' && $route.path !== '/admin' && $route.path !== '/editor'" class="global-controls">
       <ThemeToggle />
     </div>
 
@@ -52,7 +52,6 @@ export default {
   }
 }
 
-/* Loading Screen */
 .loading-screen {
   display: flex;
   flex-direction: column;

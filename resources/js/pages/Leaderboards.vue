@@ -6,7 +6,7 @@
         <p>Sacensieties ar labākajiem projektētājiem pasaulē</p>
       </div>
       <button class="btn-back" @click="$router.push('/dashboard')">
-        Atpakaļ uz Dashboard
+        Atpakaļ uz Lietotāja paneli
       </button>
     </header>
 

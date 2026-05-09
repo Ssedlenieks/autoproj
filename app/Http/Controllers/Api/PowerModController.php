@@ -8,10 +8,19 @@ use App\Models\Car;
 use App\Models\Engine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\DB; // ✅ ADD THIS
+use Illuminate\Support\Facades\DB;
 
 class PowerModController extends Controller
 {
+    /**
+     * Get all power mods (for Editor Panel)
+     */
+    public function index()
+    {
+        $mods = PowerMod::orderBy('category')->orderBy('name')->get();
+        return response()->json($mods);
+    }
+
     /**
      * Get available power mods for a specific car and engine
      * Grouped by category
@@ -19,7 +28,6 @@ class PowerModController extends Controller
     public function getAvailableParts($carId, $engineId)
     {
         try {
-            // ✅ GET BASE HP FROM PIVOT TABLE FIRST
             $carEngine = DB::table('car_engine')
                 ->where('car_id', $carId)
                 ->where('engine_id', $engineId)
@@ -32,11 +40,9 @@ class PowerModController extends Controller
                 ], 404);
             }
 
-            // Get car and engine info
             $car = Car::with('model.make')->findOrFail($carId);
             $engine = Engine::findOrFail($engineId);
 
-            // Get parts WITH matching variants only
             $parts = PowerMod::with(['variants' => function($query) use ($carId, $engineId) {
                 $query->where('car_id', $carId)
                       ->where('engine_id', $engineId);
@@ -47,49 +53,49 @@ class PowerModController extends Controller
             })
             ->get()
             ->filter(function($part) {
-                return $part->variants->count() > 0; // Only parts with at least 1 matching variant
+                return $part->variants->count() > 0;
             })
             ->groupBy('category')
             ->map(function($categoryParts) {
                 return $categoryParts->map(function($part) {
-                    $variant = $part->variants->first(); // Now guaranteed to exist
+                    $variant = $part->variants->first();
                     return [
-                        'id' => $part->id,
-                        'name' => $part->name,
-                        'brand' => $part->brand,
-                        'category' => $part->category,
-                        'price' => $part->price ?? 0,
-                        'is_estimate' => $part->is_estimate,
-                        'notes' => $variant->notes ?? $part->notes,
-                        'hp_gain' => $variant->hp_gain ?? 0,
+                        'id'             => $part->id,
+                        'name'           => $part->name,
+                        'brand'          => $part->brand,
+                        'category'       => $part->category,
+                        'price'          => $part->price ?? 0,
+                        'is_estimate'    => $part->is_estimate,
+                        'notes'          => $variant->notes ?? $part->notes,
+                        'hp_gain'        => $variant->hp_gain ?? 0,
                         'torque_nm_gain' => $variant->torque_nm_gain ?? 0,
                     ];
                 });
             });
 
             return response()->json([
-                'success' => true,
-                'carId' => $carId,
-                'engineId' => $engineId,
-                'totalParts' => $parts->flatten()->count(),
-                'categories' => $parts,
-                'baseHP' => $carEngine->power_hp ?? 0,
-                'baseTorque' => $carEngine->torque_nm ?? 0,
+                'success'          => true,
+                'carId'            => $carId,
+                'engineId'         => $engineId,
+                'totalParts'       => $parts->flatten()->count(),
+                'categories'       => $parts,
+                'baseHP'           => $carEngine->power_hp ?? 0,
+                'baseTorque'       => $carEngine->torque_nm ?? 0,
                 'acceleration0100' => $carEngine->acceleration_0_100,
-                'topSpeed' => $carEngine->top_speed,
+                'topSpeed'         => $carEngine->top_speed,
                 'car' => [
-                    'id' => $car->id,
-                    'make' => $car->model->make->name,
+                    'id'    => $car->id,
+                    'make'  => $car->model->make->name,
                     'model' => $car->model->name,
-                    'trim' => $car->trim,
-                    'year' => $car->year,
+                    'trim'  => $car->trim,
+                    'year'  => $car->year,
                 ],
                 'engine' => [
-                    'id' => $engine->id,
-                    'code' => $engine->code,
+                    'id'         => $engine->id,
+                    'code'       => $engine->code,
                     'subvariant' => $engine->subvariant,
-                    'fuel_type' => $engine->fuel_type,
-                    'cylinder' => $engine->cylinder,
+                    'fuel_type'  => $engine->fuel_type,
+                    'cylinder'   => $engine->cylinder,
                 ],
             ]);
 

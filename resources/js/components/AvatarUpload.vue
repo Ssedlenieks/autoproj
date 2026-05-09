@@ -7,7 +7,7 @@
       </div>
       <div class="avatar-overlay">
         <span class="camera-icon">📷</span>
-        <span class="upload-text">Change Photo</span>
+        <span class="upload-text">Mainīt attēlu</span>
       </div>
     </div>
 
