@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import axios from 'axios'
 
 const user = ref(null)
 const isAuthenticated = ref(false)
@@ -8,25 +9,15 @@ export function useAuth() {
   const checkAuth = async () => {
     console.log('checkAuth called')
     try {
-      const response = await fetch('/me', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        credentials: 'include',
-      })
-
+      const response = await axios.get('/me')
       console.log('ME endpoint response:', response.status)
-      const data = await response.json()
-      console.log('ME endpoint data:', data)
+      console.log('ME endpoint data:', response.data)
 
-      if (response.ok && data.success) {
-        user.value = data.user
+      if (response.data.success) {
+        user.value = response.data.user
         isAuthenticated.value = true
-        // ✅ Sync with localStorage
-        localStorage.setItem('user', JSON.stringify(data.user))
-        console.log('User authenticated:', data.user.name)
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+        console.log('User authenticated:', response.data.user.name)
       } else {
         user.value = null
         isAuthenticated.value = false
@@ -56,32 +47,17 @@ export function useAuth() {
   const logout = async () => {
     try {
       console.log('Logging out...')
-      const response = await fetch('/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-        },
-        credentials: 'include',
-      })
-
-      console.log('Logout response:', response.status)
-
+      await axios.post('/logout')
+      console.log('Logout successful')
+    } catch (err) {
+      console.error('Logout failed:', err)
+    } finally {
       user.value = null
       isAuthenticated.value = false
       localStorage.removeItem('user')
-
-      // Refresh to home page
       setTimeout(() => {
         window.location.href = '/'
       }, 300)
-    } catch (err) {
-      console.error('Logout failed:', err)
-      user.value = null
-      isAuthenticated.value = false
-      localStorage.removeItem('user')
-      window.location.href = '/'
     }
   }
 

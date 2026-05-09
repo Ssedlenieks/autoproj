@@ -1,9 +1,5 @@
-
 <template>
   <div class="login-container">
-    <!-- Theme Toggle Component -->
-
-
     <!-- Left Side: Carousel -->
     <div class="carousel-section">
       <div class="carousel-wrapper">
@@ -15,11 +11,9 @@
         </div>
       </div>
 
-      <!-- Carousel Navigation -->
       <button class="carousel-btn prev" @click="prevSlide">‹</button>
       <button class="carousel-btn next" @click="nextSlide">›</button>
 
-      <!-- Carousel Indicators -->
       <div class="carousel-indicators">
         <div
           v-for="(car, index) in cars"
@@ -31,15 +25,15 @@
       </div>
     </div>
 
-     <!-- Right Side: Login Form -->
-     <div class="form-section">
-       <div class="form-header">
-         <button @click="goBack" class="back-link">
-           ← Atpakaļ
-         </button>
-         <h1>Sveicam atpakaļ !</h1>
-         <p>Pieslēgties savam kontam</p>
-       </div>
+    <!-- Right Side: Login Form -->
+    <div class="form-section">
+      <div class="form-header">
+        <button @click="goBack" class="back-link">
+          ← Atpakaļ
+        </button>
+        <h1>Sveicam atpakaļ !</h1>
+        <p>Pieslēgties savam kontam</p>
+      </div>
 
       <form @submit.prevent="login" class="login-form">
         <div class="form-group">
@@ -96,15 +90,13 @@
 </template>
 
 <script>
+import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
 
 export default {
   setup() {
     const { setUser } = useAuth()
-
-    return {
-      setUser
-    }
+    return { setUser }
   },
   data() {
     return {
@@ -119,7 +111,6 @@ export default {
         remember: false,
       },
       cars: [
-        // ... your existing cars array
         {
           name: 'Audi R8 V10 Plus',
           image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1600&h=1000&fit=crop&q=95',
@@ -141,34 +132,34 @@ export default {
           image: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=1600&h=1000&fit=crop&q=95',
         },
       ],
-    };
+    }
   },
   mounted() {
-    this.startAutoSlide();
+    this.startAutoSlide()
   },
   beforeUnmount() {
-    this.stopAutoSlide();
+    this.stopAutoSlide()
   },
   methods: {
     startAutoSlide() {
       this.autoSlideInterval = setInterval(() => {
-        this.currentSlide = (this.currentSlide + 1) % this.cars.length;
-      }, 5000);
+        this.currentSlide = (this.currentSlide + 1) % this.cars.length
+      }, 5000)
     },
     stopAutoSlide() {
       if (this.autoSlideInterval) {
-        clearInterval(this.autoSlideInterval);
+        clearInterval(this.autoSlideInterval)
       }
     },
     nextSlide() {
-      this.currentSlide = (this.currentSlide + 1) % this.cars.length;
-      this.stopAutoSlide();
-      this.startAutoSlide();
+      this.currentSlide = (this.currentSlide + 1) % this.cars.length
+      this.stopAutoSlide()
+      this.startAutoSlide()
     },
     prevSlide() {
-      this.currentSlide = (this.currentSlide - 1 + this.cars.length) % this.cars.length;
-      this.stopAutoSlide();
-      this.startAutoSlide();
+      this.currentSlide = (this.currentSlide - 1 + this.cars.length) % this.cars.length
+      this.stopAutoSlide()
+      this.startAutoSlide()
     },
     async login() {
       this.loading = true
@@ -176,47 +167,37 @@ export default {
       this.successMessage = ''
 
       try {
-        const response = await fetch('/login', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          },
-          credentials: 'include',
-          body: JSON.stringify(this.form),
-        })
+        await axios.get('/sanctum/csrf-cookie')
 
-        const data = await response.json()
+        const response = await axios.post('/login', this.form)
 
-        if (!response.ok) {
-          this.errors = data.errors || { general: data.errors?.general?.[0] || 'Login failed' }
-          return
-        }
-
-        if (data.success) {
-          // ✅ Update auth state
-          this.setUser(data.user)
-
+        if (response.data.success) {
+          this.setUser(response.data.user)
           this.successMessage = 'Login successful! Redirecting...'
-
           setTimeout(() => {
             this.$router.push('/dashboard')
           }, 1000)
         }
       } catch (err) {
-        this.errors = { general: err.message }
+        if (err.response?.status === 422) {
+          this.errors = err.response.data.errors || {}
+        } else if (err.response?.status === 419) {
+          this.errors = { general: 'Session expired, please try again.' }
+        } else {
+          this.errors = { general: err.response?.data?.message || err.message }
+        }
       } finally {
         this.loading = false
       }
     },
-     goToRegister() {
-       this.$router.push('/register');
-     },
-     goBack() {
-       this.$router.back();
-     },
+    goToRegister() {
+      this.$router.push('/register')
+    },
+    goBack() {
+      this.$router.back()
+    },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -249,7 +230,6 @@ html[data-color-scheme="dark"] .login-container,
   color: #f5f5f5;
 }
 
-/* Carousel Section */
 .carousel-section {
   flex: 1;
   position: relative;
@@ -341,13 +321,8 @@ html[data-color-scheme="dark"] .carousel-btn:hover {
   background: rgba(255, 215, 0, 0.1);
 }
 
-.carousel-btn.prev {
-  left: 30px;
-}
-
-.carousel-btn.next {
-  right: 30px;
-}
+.carousel-btn.prev { left: 30px; }
+.carousel-btn.next { right: 30px; }
 
 .carousel-indicators {
   position: absolute;
@@ -382,7 +357,6 @@ html[data-color-scheme="dark"] .indicator.active,
   border-color: #ffd700;
 }
 
-/* Form Section */
 .form-section {
   flex: 1;
   display: flex;
@@ -396,18 +370,14 @@ html[data-color-scheme="dark"] .indicator.active,
   scrollbar-width: none;
 }
 
-.form-section::-webkit-scrollbar {
-  display: none;
-}
+.form-section::-webkit-scrollbar { display: none; }
 
 html[data-color-scheme="dark"] .form-section,
 :global([data-color-scheme="dark"]) .form-section {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
 
-.form-header {
-  margin-bottom: 40px;
-}
+.form-header { margin-bottom: 40px; }
 
 .form-header h1 {
   font-size: 2.5rem;
@@ -428,38 +398,38 @@ html[data-color-scheme="dark"] .form-header h1,
   transition: color 0.3s ease;
 }
 
- html[data-color-scheme="dark"] .form-header p,
- :global([data-color-scheme="dark"]) .form-header p {
-   color: #a0aec0;
- }
+html[data-color-scheme="dark"] .form-header p,
+:global([data-color-scheme="dark"]) .form-header p {
+  color: #a0aec0;
+}
 
- .back-link {
-   display: inline-block;
-   margin-bottom: 1rem;
-   padding: 6px 12px;
-   background: transparent;
-   border: none;
-   color: #10b981;
-   cursor: pointer;
-   font-weight: 600;
-   font-size: 0.9rem;
-   transition: color 0.2s;
- }
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: #10b981;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
 
- .back-link:hover {
-   color: #059669;
-   text-decoration: underline;
- }
+.back-link:hover {
+  color: #059669;
+  text-decoration: underline;
+}
 
- html[data-color-scheme="dark"] .back-link,
- :global([data-color-scheme="dark"]) .back-link {
-   color: #ffd700;
- }
+html[data-color-scheme="dark"] .back-link,
+:global([data-color-scheme="dark"]) .back-link {
+  color: #ffd700;
+}
 
- html[data-color-scheme="dark"] .back-link:hover,
- :global([data-color-scheme="dark"]) .back-link:hover {
-   color: #ffed4e;
- }
+html[data-color-scheme="dark"] .back-link:hover,
+:global([data-color-scheme="dark"]) .back-link:hover {
+  color: #ffed4e;
+}
 
 .login-form {
   display: flex;
@@ -516,19 +486,14 @@ html[data-color-scheme="dark"] .form-group input:focus,
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.form-group input::placeholder {
-  color: #94a3b8;
-}
+.form-group input::placeholder { color: #94a3b8; }
 
 html[data-color-scheme="dark"] .form-group input::placeholder,
 :global([data-color-scheme="dark"]) .form-group input::placeholder {
   color: #64748b;
 }
 
-.error-text {
-  color: #dc2626;
-  font-size: 0.85rem;
-}
+.error-text { color: #dc2626; font-size: 0.85rem; }
 
 .error-message {
   background: rgba(220, 38, 38, 0.08);
@@ -591,7 +556,6 @@ html[data-color-scheme="dark"] .remember,
   height: 16px;
   cursor: pointer;
   accent-color: #10b981;
-  transition: accent-color 0.3s ease;
 }
 
 html[data-color-scheme="dark"] .remember input[type='checkbox'],
@@ -606,9 +570,7 @@ html[data-color-scheme="dark"] .remember input[type='checkbox'],
   transition: color 0.3s;
 }
 
-.forgot-link:hover {
-  color: #059669;
-}
+.forgot-link:hover { color: #059669; }
 
 html[data-color-scheme="dark"] .forgot-link,
 :global([data-color-scheme="dark"]) .forgot-link {
@@ -652,10 +614,7 @@ html[data-color-scheme="dark"] .btn-login:hover:not(:disabled),
   transform: translateY(-2px);
 }
 
-.btn-login:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .divider {
   text-align: center;
@@ -682,13 +641,8 @@ html[data-color-scheme="dark"] .divider::after,
   background: #2d2d2d;
 }
 
-.divider::before {
-  left: 0;
-}
-
-.divider::after {
-  right: 0;
-}
+.divider::before { left: 0; }
+.divider::after { right: 0; }
 
 .btn-register {
   padding: 12px;
@@ -739,9 +693,7 @@ html[data-color-scheme="dark"] .form-footer,
   transition: color 0.3s;
 }
 
-.form-footer a:hover {
-  color: #059669;
-}
+.form-footer a:hover { color: #059669; }
 
 html[data-color-scheme="dark"] .form-footer a,
 :global([data-color-scheme="dark"]) .form-footer a {
@@ -754,47 +706,17 @@ html[data-color-scheme="dark"] .form-footer a:hover,
 }
 
 @media (max-width: 1024px) {
-  .login-container {
-    flex-direction: column;
-  }
-
-  .carousel-section {
-    min-height: 300px;
-    order: 2;
-  }
-
-  .form-section {
-    order: 1;
-    padding: 40px 30px;
-  }
-
-  .form-header h1 {
-    font-size: 2rem;
-  }
+  .login-container { flex-direction: column; }
+  .carousel-section { min-height: 300px; order: 2; }
+  .form-section { order: 1; padding: 40px 30px; }
+  .form-header h1 { font-size: 2rem; }
 }
 
 @media (max-width: 768px) {
-  .form-section {
-    padding: 30px 20px;
-  }
-
-  .form-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
-  }
-
-  .carousel-btn.prev {
-    left: 15px;
-  }
-
-  .carousel-btn.next {
-    right: 15px;
-  }
+  .form-section { padding: 30px 20px; }
+  .form-header h1 { font-size: 1.5rem; }
+  .carousel-btn { width: 40px; height: 40px; font-size: 1.5rem; }
+  .carousel-btn.prev { left: 15px; }
+  .carousel-btn.next { right: 15px; }
 }
 </style>
-

@@ -1,6 +1,5 @@
 <template>
   <div class="register-container">
-    <!-- Left Side: Carousel -->
     <div class="carousel-section">
       <div class="carousel-wrapper">
         <div class="carousel" :style="{ transform: `translateX(-${currentSlide * 100}%)` }">
@@ -11,11 +10,9 @@
         </div>
       </div>
 
-      <!-- Carousel Navigation -->
       <button class="carousel-btn prev" @click="prevSlide">‹</button>
       <button class="carousel-btn next" @click="nextSlide">›</button>
 
-      <!-- Carousel Indicators -->
       <div class="carousel-indicators">
         <div
           v-for="(car, index) in cars"
@@ -27,74 +24,41 @@
       </div>
     </div>
 
-     <!-- Right Side: Registration Form -->
-     <div class="form-section">
-       <div class="form-header">
-         <button @click="goBack" class="back-link">
-           ← Atpakaļ
-         </button>
-         <h1>Izveidot kontu</h1>
-         <p>Reģistrējies, lai sāktu projektēt savu sapņu mašīnu</p>
-       </div>
+    <div class="form-section">
+      <div class="form-header">
+        <button @click="goBack" class="back-link">← Atpakaļ</button>
+        <h1>Izveidot kontu</h1>
+        <p>Reģistrējies, lai sāktu projektēt savu sapņu mašīnu</p>
+      </div>
 
       <form @submit.prevent="register" class="register-form">
         <div class="form-group">
           <label for="name">Jūsu vārds</label>
-          <input
-            v-model="form.name"
-            type="text"
-            id="name"
-            placeholder="Jūsu vārds"
-            required
-          />
+          <input v-model="form.name" type="text" id="name" placeholder="Jūsu vārds" required />
           <span v-if="errors.name" class="error-text">{{ errors.name }}</span>
         </div>
 
         <div class="form-group">
           <label for="email">E-pasts</label>
-          <input
-            v-model="form.email"
-            type="email"
-            id="email"
-            placeholder="jūsu@epasts.com"
-            required
-          />
+          <input v-model="form.email" type="email" id="email" placeholder="jūsu@epasts.com" required />
           <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
         </div>
 
         <div class="form-group">
           <label for="username">Lietotājvārds</label>
-          <input
-            v-model="form.username"
-            type="text"
-            id="username"
-            placeholder="Izvēlēties lietotājvārdu"
-            required
-          />
+          <input v-model="form.username" type="text" id="username" placeholder="Izvēlēties lietotājvārdu" required />
           <span v-if="errors.username" class="error-text">{{ errors.username }}</span>
         </div>
 
         <div class="form-group">
           <label for="password">Parole</label>
-          <input
-            v-model="form.password"
-            type="password"
-            id="password"
-            placeholder="Ievadiet paroli"
-            required
-          />
+          <input v-model="form.password" type="password" id="password" placeholder="Ievadiet paroli" required />
           <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
         </div>
 
         <div class="form-group">
           <label for="password_confirmation">Apstiprināt Paroli</label>
-          <input
-            v-model="form.password_confirmation"
-            type="password"
-            id="password_confirmation"
-            placeholder="Apstiprināt paroli"
-            required
-          />
+          <input v-model="form.password_confirmation" type="password" id="password_confirmation" placeholder="Apstiprināt paroli" required />
           <span v-if="errors.password_confirmation" class="error-text">{{ errors.password_confirmation }}</span>
         </div>
 
@@ -105,9 +69,7 @@
           <button type="submit" class="btn-register" :disabled="loading">
             {{ loading ? 'Izveido kontu...' : 'Izveidot kontu' }}
           </button>
-          <button type="button" class="btn-login" @click="goToLogin">
-            Pieslēgties
-          </button>
+          <button type="button" class="btn-login" @click="goToLogin">Pieslēgties</button>
         </div>
 
         <div class="form-footer">
@@ -118,17 +80,15 @@
     </div>
   </div>
 </template>
+
 <script>
-import ThemeToggle from '../components/ThemeToggle.vue';
+import axios from 'axios'
 import { useAuth } from '../composables/useAuth'
 
 export default {
   setup() {
     const { setUser } = useAuth()
-
-    return {
-      setUser
-    }
+    return { setUser }
   },
   data() {
     return {
@@ -145,7 +105,6 @@ export default {
         password_confirmation: '',
       },
       cars: [
-        // ... your existing cars
         {
           name: 'Audi R8 V10 Plus',
           image: 'https://images.unsplash.com/photo-1542362567-b07e54358753?w=1600&h=1000&fit=crop&q=95',
@@ -167,34 +126,32 @@ export default {
           image: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=1600&h=1000&fit=crop&q=95',
         },
       ],
-    };
+    }
   },
   mounted() {
-    this.startAutoSlide();
+    this.startAutoSlide()
   },
   beforeUnmount() {
-    this.stopAutoSlide();
+    this.stopAutoSlide()
   },
   methods: {
     startAutoSlide() {
       this.autoSlideInterval = setInterval(() => {
-        this.currentSlide = (this.currentSlide + 1) % this.cars.length;
-      }, 5000);
+        this.currentSlide = (this.currentSlide + 1) % this.cars.length
+      }, 5000)
     },
     stopAutoSlide() {
-      if (this.autoSlideInterval) {
-        clearInterval(this.autoSlideInterval);
-      }
+      if (this.autoSlideInterval) clearInterval(this.autoSlideInterval)
     },
     nextSlide() {
-      this.currentSlide = (this.currentSlide + 1) % this.cars.length;
-      this.stopAutoSlide();
-      this.startAutoSlide();
+      this.currentSlide = (this.currentSlide + 1) % this.cars.length
+      this.stopAutoSlide()
+      this.startAutoSlide()
     },
     prevSlide() {
-      this.currentSlide = (this.currentSlide - 1 + this.cars.length) % this.cars.length;
-      this.stopAutoSlide();
-      this.startAutoSlide();
+      this.currentSlide = (this.currentSlide - 1 + this.cars.length) % this.cars.length
+      this.stopAutoSlide()
+      this.startAutoSlide()
     },
     async register() {
       this.loading = true
@@ -202,54 +159,41 @@ export default {
       this.successMessage = ''
 
       try {
-        const response = await fetch('/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content || '',
-          },
-          credentials: 'include',
-          body: JSON.stringify(this.form),
-        })
+        await axios.get('/sanctum/csrf-cookie')
 
-        const data = await response.json()
+        const response = await axios.post('/register', this.form)
 
-        if (!response.ok) {
-          if (data.errors) {
-            this.errors = {}
-            Object.keys(data.errors).forEach(key => {
-              this.errors[key] = data.errors[key][0]
-            })
-          } else {
-            this.errors = { general: 'Registration failed' }
-          }
-          return
-        }
-
-        if (data.success) {
-          // ✅ Update auth state
-          this.setUser(data.user)
-
+        if (response.data.success) {
+          this.setUser(response.data.user)
           this.successMessage = '🎉 Account created successfully! Welcome to Potato Builder!'
-
           setTimeout(() => {
             this.$router.push('/dashboard')
           }, 1500)
         }
       } catch (err) {
-        this.errors = { general: err.message }
+        if (err.response?.status === 422) {
+          const rawErrors = err.response.data.errors || {}
+          this.errors = {}
+          Object.keys(rawErrors).forEach(key => {
+            this.errors[key] = rawErrors[key][0]
+          })
+        } else if (err.response?.status === 419) {
+          this.errors = { general: 'Session expired, please try again.' }
+        } else {
+          this.errors = { general: err.response?.data?.message || err.message }
+        }
       } finally {
         this.loading = false
       }
     },
-     goToLogin() {
-       this.$router.push('/login');
-     },
-     goBack() {
-       this.$router.back();
-     },
+    goToLogin() {
+      this.$router.push('/login')
+    },
+    goBack() {
+      this.$router.back()
+    },
   },
-};
+}
 </script>
 
 <style scoped>
@@ -282,7 +226,6 @@ html[data-color-scheme="dark"] .register-container,
   color: #f5f5f5;
 }
 
-/* Carousel Section */
 .carousel-section {
   flex: 1;
   position: relative;
@@ -374,13 +317,8 @@ html[data-color-scheme="dark"] .carousel-btn:hover {
   background: rgba(255, 215, 0, 0.1);
 }
 
-.carousel-btn.prev {
-  left: 30px;
-}
-
-.carousel-btn.next {
-  right: 30px;
-}
+.carousel-btn.prev { left: 30px; }
+.carousel-btn.next { right: 30px; }
 
 .carousel-indicators {
   position: absolute;
@@ -415,7 +353,6 @@ html[data-color-scheme="dark"] .indicator.active,
   border-color: #ffd700;
 }
 
-/* Form Section */
 .form-section {
   flex: 1;
   display: flex;
@@ -429,18 +366,14 @@ html[data-color-scheme="dark"] .indicator.active,
   scrollbar-width: none;
 }
 
-.form-section::-webkit-scrollbar {
-  display: none;
-}
+.form-section::-webkit-scrollbar { display: none; }
 
 html[data-color-scheme="dark"] .form-section,
 :global([data-color-scheme="dark"]) .form-section {
   background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
 }
 
-.form-header {
-  margin-bottom: 40px;
-}
+.form-header { margin-bottom: 40px; }
 
 .form-header h1 {
   font-size: 2.5rem;
@@ -461,38 +394,38 @@ html[data-color-scheme="dark"] .form-header h1,
   transition: color 0.3s ease;
 }
 
- html[data-color-scheme="dark"] .form-header p,
- :global([data-color-scheme="dark"]) .form-header p {
-   color: #a0aec0;
- }
+html[data-color-scheme="dark"] .form-header p,
+:global([data-color-scheme="dark"]) .form-header p {
+  color: #a0aec0;
+}
 
- .back-link {
-   display: inline-block;
-   margin-bottom: 1rem;
-   padding: 6px 12px;
-   background: transparent;
-   border: none;
-   color: #10b981;
-   cursor: pointer;
-   font-weight: 600;
-   font-size: 0.9rem;
-   transition: color 0.2s;
- }
+.back-link {
+  display: inline-block;
+  margin-bottom: 1rem;
+  padding: 6px 12px;
+  background: transparent;
+  border: none;
+  color: #10b981;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: color 0.2s;
+}
 
- .back-link:hover {
-   color: #059669;
-   text-decoration: underline;
- }
+.back-link:hover {
+  color: #059669;
+  text-decoration: underline;
+}
 
- html[data-color-scheme="dark"] .back-link,
- :global([data-color-scheme="dark"]) .back-link {
-   color: #ffd700;
- }
+html[data-color-scheme="dark"] .back-link,
+:global([data-color-scheme="dark"]) .back-link {
+  color: #ffd700;
+}
 
- html[data-color-scheme="dark"] .back-link:hover,
- :global([data-color-scheme="dark"]) .back-link:hover {
-   color: #ffed4e;
- }
+html[data-color-scheme="dark"] .back-link:hover,
+:global([data-color-scheme="dark"]) .back-link:hover {
+  color: #ffed4e;
+}
 
 .register-form {
   display: flex;
@@ -549,19 +482,14 @@ html[data-color-scheme="dark"] .form-group input:focus,
   box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.form-group input::placeholder {
-  color: #94a3b8;
-}
+.form-group input::placeholder { color: #94a3b8; }
 
 html[data-color-scheme="dark"] .form-group input::placeholder,
 :global([data-color-scheme="dark"]) .form-group input::placeholder {
   color: #64748b;
 }
 
-.error-text {
-  color: #dc2626;
-  font-size: 0.85rem;
-}
+.error-text { color: #dc2626; font-size: 0.85rem; }
 
 .error-message {
   background: rgba(220, 38, 38, 0.08);
@@ -570,7 +498,6 @@ html[data-color-scheme="dark"] .form-group input::placeholder,
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.9rem;
-  transition: all 0.3s ease;
 }
 
 html[data-color-scheme="dark"] .error-message,
@@ -587,7 +514,6 @@ html[data-color-scheme="dark"] .error-message,
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.9rem;
-  transition: all 0.3s ease;
 }
 
 html[data-color-scheme="dark"] .success-message,
@@ -635,10 +561,7 @@ html[data-color-scheme="dark"] .btn-register:hover:not(:disabled),
   transform: translateY(-2px);
 }
 
-.btn-register:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.btn-register:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btn-login {
   flex: 1;
@@ -685,7 +608,6 @@ html[data-color-scheme="dark"] .btn-login:hover,
   height: 18px;
   cursor: pointer;
   accent-color: #10b981;
-  transition: accent-color 0.3s ease;
 }
 
 html[data-color-scheme="dark"] .form-footer input[type='checkbox'],
@@ -705,46 +627,17 @@ html[data-color-scheme="dark"] .form-footer label,
 }
 
 @media (max-width: 1024px) {
-  .register-container {
-    flex-direction: column;
-  }
-
-  .carousel-section {
-    min-height: 300px;
-    order: 2;
-  }
-
-  .form-section {
-    order: 1;
-    padding: 40px 30px;
-  }
-
-  .form-header h1 {
-    font-size: 2rem;
-  }
+  .register-container { flex-direction: column; }
+  .carousel-section { min-height: 300px; order: 2; }
+  .form-section { order: 1; padding: 40px 30px; }
+  .form-header h1 { font-size: 2rem; }
 }
 
 @media (max-width: 768px) {
-  .form-section {
-    padding: 30px 20px;
-  }
-
-  .form-header h1 {
-    font-size: 1.5rem;
-  }
-
-  .carousel-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
-  }
-
-  .carousel-btn.prev {
-    left: 15px;
-  }
-
-  .carousel-btn.next {
-    right: 15px;
-  }
+  .form-section { padding: 30px 20px; }
+  .form-header h1 { font-size: 1.5rem; }
+  .carousel-btn { width: 40px; height: 40px; font-size: 1.5rem; }
+  .carousel-btn.prev { left: 15px; }
+  .carousel-btn.next { right: 15px; }
 }
 </style>
