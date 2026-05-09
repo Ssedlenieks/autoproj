@@ -10,7 +10,7 @@ import { useDarkMode } from './composables/useDarkMode'
 
 const { colorScheme, toggleDarkMode } = useDarkMode()
 
-axios.defaults.baseURL = 'http://autoproj.test'
+axios.defaults.baseURL = import.meta.env.VITE_APP_URL || 'http://autoproj.test'
 axios.defaults.withCredentials = true
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest'
 
