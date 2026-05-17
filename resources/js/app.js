@@ -67,14 +67,12 @@ const router = createRouter({
       component: () => import('./pages/Leaderboards.vue'),
       meta: { requiresAuth: true },
     },
-
     {
       path: '/explore',
       name: 'Explore',
       component: () => import('./pages/PublicProjects.vue'),
       meta: { requiresAuth: true },
     },
-
     {
       path: '/projects/:id',
       name: 'ProjectView',
@@ -113,8 +111,13 @@ axios.interceptors.response.use(
   response => response,
   error => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('user')
-      router.push({ name: 'Login' })
+      const publicRoutes = ['Login', 'Register', 'Home']
+      const currentRoute = router.currentRoute.value.name
+
+      if (!publicRoutes.includes(currentRoute)) {
+        localStorage.removeItem('user')
+        router.push({ name: 'Login' })
+      }
     }
     return Promise.reject(error)
   }

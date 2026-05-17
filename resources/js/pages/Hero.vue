@@ -12,7 +12,6 @@
       <!-- Minimal Header with Login -->
       <header class="hero-header">
   <div class="header-left">
-    <h2 class="notranslate">POTATO</h2>
   </div>
 
   <!-- Language + Theme controls in header -->
@@ -86,7 +85,7 @@
     <footer class="hero-footer">
       <div class="footer-content">
         <div class="footer-section">
-          <h4>Potato Auto projektētājs</h4>
+          <h4>Auto projektētājs</h4>
           <p>Izveidojat jūsu sapņu auto projektus no reālajiem auto modeļiem.</p>
         </div>
         <div class="footer-section">
@@ -115,7 +114,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p>&copy; 2026 Potato Auto projektētājs. All rights reserved.</p>
+        <p>&copy; 2026 Auto projektētājs. All rights reserved.</p>
       </div>
     </footer>
   </div>
