@@ -28,16 +28,14 @@
     <!-- Right Side: Login Form -->
     <div class="form-section">
       <div class="form-header">
-        <button @click="goBack" class="back-link">
-          ← Atpakaļ
-        </button>
-        <h1>Sveicam atpakaļ !</h1>
+        <button @click="goBack" class="back-link">← Atpakaļ</button>
+        <h1>Sveicam atpakaļ!</h1>
         <p>Pieslēgties savam kontam</p>
       </div>
 
       <form @submit.prevent="login" class="login-form">
         <div class="form-group">
-          <label for="email">Epasts vai lietottājvārds</label>
+          <label for="email">Epasts vai lietotājvārds</label>
           <input
             v-model="form.email"
             type="text"
@@ -45,19 +43,29 @@
             placeholder="jūsu@epasts.com vai lietotājvārds"
             required
           />
-          <span v-if="errors.email" class="error-text">{{ errors.email }}</span>
+          <span v-if="errors.email" class="error-text">
+            {{ Array.isArray(errors.email) ? errors.email[0] : errors.email }}
+          </span>
         </div>
 
         <div class="form-group">
           <label for="password">Parole</label>
-          <input
-            v-model="form.password"
-            type="password"
-            id="password"
-            placeholder="Ievadiet paroli"
-            required
-          />
-          <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
+          <div class="password-wrapper">
+            <input
+              v-model="form.password"
+              :type="showPassword ? 'text' : 'password'"
+              id="password"
+              placeholder="Ievadiet paroli"
+              required
+            />
+            <button type="button" class="toggle-password" @click="showPassword = !showPassword" :aria-label="showPassword ? 'Paslēpt paroli' : 'Rādīt paroli'">
+              <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span v-if="errors.password" class="error-text">
+            {{ Array.isArray(errors.password) ? errors.password[0] : errors.password }}
+          </span>
         </div>
 
         <div class="remember-forgot">
@@ -72,10 +80,11 @@
         <div v-if="successMessage" class="success-message">{{ successMessage }}</div>
 
         <button type="submit" class="btn-login" :disabled="loading">
+          <span v-if="loading" class="spinner"></span>
           {{ loading ? 'Pieslēdzas...' : 'Pieslēgties' }}
         </button>
 
-        <div class="divider">or</div>
+        <div class="divider">vai</div>
 
         <button type="button" class="btn-register" @click="goToRegister">
           Izveidot jaunu kontu
@@ -103,6 +112,7 @@ export default {
       currentSlide: 0,
       autoSlideInterval: null,
       loading: false,
+      showPassword: false,
       successMessage: '',
       errors: {},
       form: {
@@ -167,24 +177,35 @@ export default {
       this.successMessage = ''
 
       try {
-        await axios.get('/sanctum/csrf-cookie')
+        // Fetch CSRF cookie — withCredentials sends session cookie cross-origin
+        await axios.get('/sanctum/csrf-cookie', { withCredentials: true })
 
-        const response = await axios.post('/login', this.form)
+        const response = await axios.post('/login', {
+          email: this.form.email,
+          password: this.form.password,
+          remember: this.form.remember,
+        }, { withCredentials: true })
 
         if (response.data.success) {
           this.setUser(response.data.user)
-          this.successMessage = 'Login successful! Redirecting...'
+          this.successMessage = 'Pieslēgšanās veiksmīga! Novirzīšana...'
           setTimeout(() => {
             this.$router.push('/dashboard')
           }, 1000)
+        } else {
+          this.errors = { general: response.data.message || 'Pieslēgšanās neizdevās.' }
         }
       } catch (err) {
         if (err.response?.status === 422) {
           this.errors = err.response.data.errors || {}
+        } else if (err.response?.status === 401) {
+          this.errors = { general: 'Nepareizs epasts/lietotājvārds vai parole.' }
         } else if (err.response?.status === 419) {
-          this.errors = { general: 'Session expired, please try again.' }
+          this.errors = { general: 'Sesija beigusies. Lūdzu atsvaidzini lapu un mēģini vēlreiz.' }
+        } else if (err.response?.status === 429) {
+          this.errors = { general: 'Pārāk daudz mēģinājumu. Uzgaidi dažas minūtes.' }
         } else {
-          this.errors = { general: err.response?.data?.message || err.message }
+          this.errors = { general: err.response?.data?.message || 'Savienojuma kļūda. Pārbaudi interneta savienojumu.' }
         }
       } finally {
         this.loading = false
@@ -230,6 +251,7 @@ html[data-color-scheme="dark"] .login-container,
   color: #f5f5f5;
 }
 
+/* ── Carousel ── */
 .carousel-section {
   flex: 1;
   position: relative;
@@ -357,6 +379,7 @@ html[data-color-scheme="dark"] .indicator.active,
   border-color: #ffd700;
 }
 
+/* ── Form Section ── */
 .form-section {
   flex: 1;
   display: flex;
@@ -431,6 +454,7 @@ html[data-color-scheme="dark"] .back-link:hover,
   color: #ffed4e;
 }
 
+/* ── Form ── */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -455,6 +479,38 @@ html[data-color-scheme="dark"] .form-group label,
   color: #e2e8f0;
 }
 
+/* Password show/hide wrapper */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 46px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover { color: #10b981; }
+
+html[data-color-scheme="dark"] .toggle-password:hover,
+:global([data-color-scheme="dark"]) .toggle-password:hover {
+  color: #ffd700;
+}
+
 .form-group input {
   padding: 12px 16px;
   border: 1.5px solid #e2e8f0;
@@ -464,6 +520,7 @@ html[data-color-scheme="dark"] .form-group label,
   font-size: 1rem;
   transition: all 0.3s ease;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  width: 100%;
 }
 
 html[data-color-scheme="dark"] .form-group input,
@@ -493,6 +550,7 @@ html[data-color-scheme="dark"] .form-group input::placeholder,
   color: #64748b;
 }
 
+/* ── Errors / Success ── */
 .error-text { color: #dc2626; font-size: 0.85rem; }
 
 .error-message {
@@ -529,6 +587,7 @@ html[data-color-scheme="dark"] .success-message,
   color: #ffd700;
 }
 
+/* ── Remember / Forgot ── */
 .remember-forgot {
   display: flex;
   justify-content: space-between;
@@ -582,6 +641,7 @@ html[data-color-scheme="dark"] .forgot-link:hover,
   color: #ffed4e;
 }
 
+/* ── Buttons ── */
 .btn-login {
   padding: 12px;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
@@ -594,6 +654,10 @@ html[data-color-scheme="dark"] .forgot-link:hover,
   font-size: 1rem;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);
   margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 html[data-color-scheme="dark"] .btn-login,
@@ -615,6 +679,25 @@ html[data-color-scheme="dark"] .btn-login:hover:not(:disabled),
 }
 
 .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Spinner inside login button */
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+html[data-color-scheme="dark"] .spinner,
+:global([data-color-scheme="dark"]) .spinner {
+  border-color: rgba(0, 0, 0, 0.25);
+  border-top-color: #000;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
 
 .divider {
   text-align: center;
@@ -675,6 +758,7 @@ html[data-color-scheme="dark"] .btn-register:hover,
   color: #ffed4e;
 }
 
+/* ── Footer ── */
 .form-footer {
   text-align: center;
   margin-top: 20px;
@@ -705,6 +789,7 @@ html[data-color-scheme="dark"] .form-footer a:hover,
   color: #ffed4e;
 }
 
+/* ── Responsive ── */
 @media (max-width: 1024px) {
   .login-container { flex-direction: column; }
   .carousel-section { min-height: 300px; order: 2; }
