@@ -35,7 +35,7 @@
       <!-- Overlay + Content -->
       <div class="hero-content">
         <div class="content-inner">
-          <h1>Potato auto projektētājs</h1>
+          <h1>Auto projektētājs</h1>
           <p class="subtitle">Izveido savu sapņu auto projektu no reālajiem auto modeļiem.</p>
 
           <div class="stats-grid">
