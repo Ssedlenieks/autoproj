@@ -60,15 +60,17 @@ class PowerModController extends Controller
                 return $categoryParts->map(function($part) {
                     $variant = $part->variants->first();
                     return [
-                        'id'             => $part->id,
-                        'name'           => $part->name,
-                        'brand'          => $part->brand,
-                        'category'       => $part->category,
-                        'price'          => $part->price ?? 0,
-                        'is_estimate'    => $part->is_estimate,
-                        'notes'          => $variant->notes ?? $part->notes,
-                        'hp_gain'        => $variant->hp_gain ?? 0,
-                        'torque_nm_gain' => $variant->torque_nm_gain ?? 0,
+                        'id'              => $part->id,
+                        'name'            => $part->name,
+                        'brand'           => $part->brand,
+                        'category'        => $part->category,
+                        'price'           => $part->price ?? 0,
+                        'is_estimate'     => $part->is_estimate,
+                        'notes'           => $variant->notes ?? $part->notes,
+                        'hp_gain'         => $variant->hp_gain ?? 0,
+                        'torque_nm_gain'  => $variant->torque_nm_gain ?? 0,
+                        'youtube_url'     => $part->youtube_url,
+                        'youtube_channel' => $part->youtube_channel,
                     ];
                 });
             });

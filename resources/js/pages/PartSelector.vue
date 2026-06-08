@@ -14,7 +14,6 @@
         <h1>{{ carInfo.make }} {{ carInfo.model }}</h1>
         <p>{{ carInfo.trim }} • {{ carInfo.year }} • {{ engineInfo.code }}</p>
       </div>
-      <!-- Edit mode badge -->
       <div v-if="editMode" class="edit-badge">✏️ Rediģēšanas režīms</div>
     </header>
 
@@ -56,6 +55,14 @@
               </div>
 
               <p class="part-notes">{{ part.notes }}</p>
+
+              <button
+                v-if="part.youtube_url"
+                @click.stop="openTutorial(part)"
+                class="tutorial-btn"
+              >
+                ▶ Skatīties pamācību
+              </button>
 
               <button
                 @click.stop="togglePart(part)"
@@ -167,6 +174,40 @@
       </div>
     </div>
 
+    <!-- YouTube Tutorial Modal -->
+    <div v-if="showTutorialModal" class="modal-overlay" @click="closeTutorial">
+      <div class="tutorial-modal-content" @click.stop>
+
+        <button class="tutorial-close-btn" @click="closeTutorial">✕</button>
+
+        <h3>{{ activeTutorialPart?.name }}</h3>
+        <p class="tutorial-subtitle">{{ activeTutorialPart?.brand }}</p>
+
+        <div class="ratio-16x9">
+          <iframe
+            :src="getEmbedUrl(activeTutorialPart?.youtube_url)"
+            frameborder="0"
+            allowfullscreen
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          ></iframe>
+        </div>
+
+        <!-- Channel shoutout — simple & clean -->
+        <div v-if="activeTutorialPart?.youtube_channel" class="channel-shoutout">
+          <span class="channel-label">Tutorial provided by</span>
+          <a
+            :href="getChannelUrl(activeTutorialPart.youtube_channel)"
+            target="_blank"
+            rel="noopener"
+            class="channel-link"
+          >
+            {{ getChannelDisplay(activeTutorialPart.youtube_channel) }} ↗
+          </a>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -192,13 +233,15 @@ export default {
       baseHP: 0,
       baseTorque: 0,
 
-      // Edit mode
       editMode: false,
       editProjectId: null,
 
       showSaveModal: false,
       projectNameInput: '',
       isSaving: false,
+
+      showTutorialModal: false,
+      activeTutorialPart: null,
     }
   },
 
@@ -212,7 +255,6 @@ export default {
   },
 
   async mounted() {
-    // Pārbaudīt vai ir edit režīms
     const editId = this.$route?.query?.edit
     if (editId) {
       this.editMode = true
@@ -221,7 +263,6 @@ export default {
 
     await this.loadParts()
 
-    // Ja edit režīms — ielādēt esošās detaļas PĒC kategoriju ielādes
     if (this.editMode) {
       await this.loadExistingProject()
     }
@@ -253,12 +294,9 @@ export default {
         const res = await axios.get(`/api/projects/${this.editProjectId}`)
         const project = res.data.project ?? res.data
 
-        // Projekta nosaukums priekš modāļa
         this.projectNameInput = project.project_name || ''
 
-        // Atrast katru saglabāto detaļu kategorijās un pievienot selectedParts
         const savedIds = (project.parts || []).map(p => p.power_mod_id ?? p.id)
-
         const allParts = Object.values(this.categories).flat()
         this.selectedParts = allParts.filter(p => savedIds.includes(p.id))
 
@@ -303,7 +341,6 @@ export default {
         return
       }
 
-      // Nosaukums jau aizpildīts edit режīmā no loadExistingProject
       if (!this.editMode) {
         this.projectNameInput = `${this.carInfo.make} ${this.carInfo.model} ${this.carInfo.year}`
       }
@@ -316,6 +353,42 @@ export default {
 
     closeSaveModal() {
       this.showSaveModal = false
+    },
+
+    openTutorial(part) {
+      this.activeTutorialPart = part
+      this.showTutorialModal = true
+    },
+
+    closeTutorial() {
+      this.showTutorialModal = false
+      this.activeTutorialPart = null
+    },
+
+    getEmbedUrl(url) {
+      if (!url) return ''
+      const match = url.match(/(?:v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+      return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1` : ''
+    },
+
+    // NEW METHODS FOR CLEAN YOUTUBE URL HANDLING
+    getChannelDisplay(channel) {
+      if (!channel) return ''
+      if (!channel.startsWith('http')) return channel
+      
+      const handleMatch = channel.match(/@([\w.-]+)/)
+      if (handleMatch) return '@' + handleMatch[1]
+      
+      const idMatch = channel.match(/channel\/([\w-]+)/)
+      if (idMatch) return idMatch[1]
+      
+      return channel
+    },
+
+    getChannelUrl(channel) {
+      if (!channel) return '#'
+      if (channel.startsWith('http')) return channel
+      return `https://www.youtube.com/@${channel}`
     },
 
     async confirmSaveBuild() {
@@ -339,7 +412,6 @@ export default {
       }
 
       try {
-        // PUT ja edit режīms, POST ja jauns
         const method = this.editMode ? 'put' : 'post'
         const url    = this.editMode
           ? `/api/projects/${this.editProjectId}`
@@ -362,7 +434,6 @@ export default {
             : `Projekts "${this.projectNameInput}" saglabāts!`
           toast.success(msg, { autoClose: 3000 })
 
-          // Jauni sasniegumi tikai jauniem projektiem
           if (!this.editMode && res.data.newAchievements?.length > 0) {
             res.data.newAchievements.forEach((achievement, index) => {
               setTimeout(() => {
@@ -454,7 +525,6 @@ html[data-color-scheme='dark'] .parts-header {
   border-bottom-color: #2d2d2d;
 }
 
-/* Edit mode badge */
 .edit-badge {
   margin-left: auto;
   padding: 6px 14px;
@@ -564,6 +634,23 @@ html[data-color-scheme='dark'] .gain-item { color: #ffd700; }
 .gain-icon { font-size: 0.9rem; font-weight: 800; }
 .no-gain { color: #94a3b8; font-size: 0.9rem; font-style: italic; }
 .part-notes { margin: 12px 0; color: #64748b; font-size: 0.9rem; line-height: 1.5; }
+
+.tutorial-btn {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: 2px solid #ff0000;
+  color: #ff0000;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 8px;
+}
+.tutorial-btn:hover { background: #ff0000; color: white; transform: translateY(-2px); }
+html[data-color-scheme='dark'] .tutorial-btn { border-color: #ff4444; color: #ff4444; }
+html[data-color-scheme='dark'] .tutorial-btn:hover { background: #ff4444; color: white; }
 
 .add-btn {
   width: 100%; padding: 12px; background: #10b981;
@@ -702,6 +789,104 @@ html[data-color-scheme='dark'] .btn-cancel { background: #2d2d2d; color: #a0aec0
 html[data-color-scheme='dark'] .btn-cancel:hover { background: #404040; }
 
 .modal-save-btn { width: auto; }
+
+/* Tutorial modal */
+.tutorial-modal-content {
+  background: white;
+  padding: 28px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 720px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: slideUp 0.3s ease-out;
+}
+html[data-color-scheme='dark'] .tutorial-modal-content {
+  background: #1a1a1a;
+  border: 1px solid #2d2d2d;
+}
+
+.tutorial-close-btn {
+  position: absolute;
+  top: 16px; right: 16px;
+  background: #f1f5f9;
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  color: #64748b;
+  transition: all 0.2s;
+}
+.tutorial-close-btn:hover { background: #e2e8f0; }
+html[data-color-scheme='dark'] .tutorial-close-btn { background: #2d2d2d; color: #a0aec0; }
+
+.tutorial-modal-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 1.4rem;
+  color: #1e293b;
+  padding-right: 40px;
+}
+html[data-color-scheme='dark'] .tutorial-modal-content h3 { color: #f5f5f5; }
+
+.tutorial-subtitle {
+  color: #94a3b8;
+  font-size: 0.9rem;
+  margin: 0 0 16px 0;
+}
+
+.ratio-16x9 {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+}
+.ratio-16x9 iframe {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+}
+
+/* Channel shoutout — simple text style */
+.channel-shoutout {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+html[data-color-scheme='dark'] .channel-shoutout {
+  border-top-color: #2d2d2d;
+}
+
+.channel-label {
+  color: #64748b;
+}
+html[data-color-scheme='dark'] .channel-label {
+  color: #a0aec0;
+}
+
+.channel-link {
+  color: #10b981;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+html[data-color-scheme='dark'] .channel-link {
+  color: #ffd700;
+}
+.channel-link:hover {
+  text-decoration: underline;
+  color: #059669;
+}
+html[data-color-scheme='dark'] .channel-link:hover {
+  color: #ffed4e;
+}
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }

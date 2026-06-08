@@ -165,7 +165,7 @@ export default {
 
         if (response.data.success) {
           this.setUser(response.data.user)
-          this.successMessage = '🎉 Account created successfully! Welcome to Potato Builder!'
+          this.successMessage = 'Konts ir veiksmīgi izveidots!'
           setTimeout(() => {
             this.$router.push('/dashboard')
           }, 1500)
@@ -178,7 +178,7 @@ export default {
             this.errors[key] = rawErrors[key][0]
           })
         } else if (err.response?.status === 419) {
-          this.errors = { general: 'Session expired, please try again.' }
+          this.errors = { general: 'Sesijas termiņš beidzies, lūdzu, mēģiniet vēlreiz.' }
         } else {
           this.errors = { general: err.response?.data?.message || err.message }
         }
